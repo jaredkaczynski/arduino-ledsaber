@@ -154,7 +154,7 @@ void check_button() {
         button_click();
       }
       button_state = 0;
-      update_blade();
+      update_blade_array();
       button_longpress = 0;
       break;
     default:
@@ -199,7 +199,7 @@ void start_inputs() {
   knob.read();
   knob.write(0);
   sw_state = digitalRead(ROTARY_SW_PIN);
-  update_blade();
+  update_blade_array();
 }
 
 

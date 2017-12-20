@@ -15,12 +15,15 @@
 #define BLADE_POWER_LIMIT_GREEN    0.90f
 #define BLADE_POWER_LIMIT_BLUE     0.90f
 
+// how many modes
+#define MODE_COUNT 12
+
 // blade state
 int blade_mode = BLADE_MODE_OFF;
 //Switch to percentage
 int blade_out_percentage = 0;
 
-int extend_speed = 3;
+int extend_speed = 2;
 
 int blade_preset = 0;
 //Number of blades
@@ -38,12 +41,34 @@ typedef struct Blade
 	//ms offset for animations
 	int offset;
 	//Which pin this blade is connected to on Arduino
-	int pin;
+	uint8_t pin;
 	int blade_brightness;
 	int blade_saturation;
 	int blade_hue;
 };
-extern Blade blade_array;
+
+// mode light colour list
+CRGB mode_color[] = {
+	CRGB::White,  // mode 0 : extension
+	CRGB::White,  // mode 1 : volume
+	CRGB::Purple, // mode 2 : presets
+	CRGB::Green,  // mode 3 : blade brightness
+	CRGB::Blue,   // mode 4 : blade hue
+	CRGB::Blue,   // mode 5 : blade saturation
+	CRGB::Yellow, // mode 6 : buzz frequency
+	CRGB::Orange, // mode 7 : hum1 frequency
+	CRGB::Orange, // mode 8 : hum2 frequency
+	CRGB::Red,    // mode 9 : doppler shift
+	CRGB::Red,    // mode 10 : echo decay
+	CRGB::Black,  // mode 11 : no action
+};
+
+// rotary knob state
+int  button_mode = 0;
+byte button_state = 0;
+
+extern Blade blade_array[];
+
 
 void update_blade(Blade b) {
 	// compute base color
@@ -82,12 +107,13 @@ void update_blade(Blade b) {
 	// set the remaining strip light values
 	//This for loop is for ignite and deactivate
 	//Iterates over every LED in the blade
-	for (; i<BLADE_LEDS_COUNT; i++) {
+	for (; i<b.blade_led_count; i++) {
 		if (map(i, 1, b.blade_led_count, 1, 100) < blade_out_percentage) {
 			b.blade_leds[i] = color;
 		}
 		else {
 			b.blade_leds[i] = CRGB::Black;
+			//Can I break here for efficiency?
 		}
 	}
 	// update the LEDS now
@@ -104,7 +130,7 @@ void update_blade_array(int brightness, int saturation, int hue) {
 	for (int i = 0; i < blade_count; i++) {
 		//Change the blade color
 		if (brightness > 0) {
-			blade_array[i]->blade_brightness = brightness;
+			blade_array[i].blade_brightness = brightness;
 		}
 		if (saturation > 0) {
 			blade_array[i].blade_saturation = saturation;
@@ -116,25 +142,6 @@ void update_blade_array(int brightness, int saturation, int hue) {
 		update_blade(blade_array[i]);
 	}
 }
-
-// how many modes
-#define MODE_COUNT 12
-
-// mode light colour list
-CRGB mode_color[] = {
-	CRGB::White,  // mode 0 : extension
-	CRGB::White,  // mode 1 : volume
-	CRGB::Purple, // mode 2 : presets
-	CRGB::Green,  // mode 3 : blade brightness
-	CRGB::Blue,   // mode 4 : blade hue
-	CRGB::Blue,   // mode 5 : blade saturation
-	CRGB::Yellow, // mode 6 : buzz frequency
-	CRGB::Orange, // mode 7 : hum1 frequency
-	CRGB::Orange, // mode 8 : hum2 frequency
-	CRGB::Red,    // mode 9 : doppler shift
-	CRGB::Red,    // mode 10 : echo decay
-	CRGB::Black,  // mode 11 : no action
-};
 
 
 

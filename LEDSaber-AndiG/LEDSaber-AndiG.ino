@@ -2,6 +2,11 @@
 #include <Wire.h>
 #include <avr/wdt.h>
 #include <FastLED.h>
+
+// local extentions
+#include "properties.h"
+#include "mpu6050.h"
+#include "audio.h"
 #include "blades.h"
 
 // define our LED blade properties
@@ -36,10 +41,7 @@
 //Creating an array of Blades for multi blade setups
 Blade blade_array[blade_count];
 
-// local extentions
-#include "properties.h"
-#include "mpu6050.h"
-#include "audio.h"
+
 
 // enable rotaty encoder switch control
 #define CONTROL_ROTARY
@@ -91,18 +93,22 @@ void setup() {
 	// enable watchdog timer
 	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
 	// setup the blade strips
-	blade_array[0].blade_led_count = 60;
-	blade_array[0].blade_leds = (CRGB*)malloc( * sizeof(CRGB));
-	blade_array[0].
+	blade_array[0].blade_led_count = 60;	
+	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
+	blade_array[0].blade_brightness = 100;
+	blade_array[0].blade_hue = 200;
+	blade_array[0].blade_saturation = 100;
+	blade_array[0].pin = A2;
+	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
+	LEDS.addLeds<WS2812, A2, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 
-	LEDS.addLeds<WS2812, BLADE_LEDS_PIN, GRB>(blade_leds, BLADE_LEDS_COUNT);
 #ifdef STATUS_LEDS
 	// setup the status strip
 	LEDS.addLeds<WS2812, STATUS_LEDS_PIN, GRB>(status_leds, STATUS_LEDS_COUNT);
 #endif
 	LEDS.setDither(0);
 	blade_out_percentage = 0;
-	update_blade();
+	update_blade_array();
 	LEDS.show();
 	// start i2c
 	Wire.begin();
@@ -302,18 +308,18 @@ void loop() {
 			blade_mode = BLADE_MODE_OFF;
 		}
 		break;
-//#ifdef VOLTAGE_SHUTDOWN
-//	case BLADE_MODE_UNDERVOLT:
-//		// retract
-//		if (blade_length > 0) {
-//			blade_length--; update_blade();
-//		}
-//		// blink the light
-//		blade_array[0].blade_leds[0] = (shutdown_state == 0) ? CRGB::Black : CRGB::Red;
-//		LEDS.show();
-//		// use the beeps!
-//		snd_buzz_volume = 0;
-//		snd_hum1_volume = 0;
+#ifdef VOLTAGE_SHUTDOWN
+	case BLADE_MODE_UNDERVOLT:
+		// retract
+		if (blade_out_percentage> 0) {
+			blade_out_percentage--; update_blade_array();
+		}
+		// blink the light
+		blade_array[0].blade_leds[0] = (shutdown_state == 0) ? CRGB::Black : CRGB::Red;
+		LEDS.show();
+		// use the beeps!
+		snd_buzz_volume = 0;
+		snd_hum1_volume = 0;
 #ifdef VOLTAGE_BEEPS
 		if (shutdown_state == 0) {
 			snd_hum2_volume = 0;

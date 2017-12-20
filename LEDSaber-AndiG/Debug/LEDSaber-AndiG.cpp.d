@@ -54,9 +54,10 @@ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\LEDSabe
  C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastspi_bitbang.h \
  C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastled_delay.h \
  C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/chipsets.h \
- C:\Program\ Files\ (x86)\Microsoft\ Visual\ Studio\2017\Community\Common7\IDE\Extensions\pbd1usl1.2ll\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h \
  C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\properties.h \
  C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\mpu6050.h \
  C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\audio.h \
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\blades.h \
+ C:\Program\ Files\ (x86)\Microsoft\ Visual\ Studio\2017\Community\Common7\IDE\Extensions\pbd1usl1.2ll\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h \
  C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\rotary.h \
  C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\encoder.h

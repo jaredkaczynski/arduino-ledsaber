@@ -8,9 +8,10 @@ int   preset_doppler[] =    {  30,  30,  35,  40,  40,  45,  -10,  30 };
 int   preset_echo[] =       { 180, 200, 210, 220, 180, 192,  240, 210 };
 int   preset_speed[] =      {   3,   2,   2,   3,   2,   3,   2,    1 };
 
-// rotary knob state
-int  button_mode = 0;
-byte button_state = 0;
+//Import the variables to use this file as the EEPROM save file
+extern byte button_state;
+extern int button_mode;
+extern int extend_speed;
 
 // audio state
 byte global_volume = 240;
@@ -74,23 +75,23 @@ void eeprom_restore() {
 }
 
 void eeprom_save() {
-  // save the properties
-  EEPROM.update(2,button_mode);
-  // sound properties
-  EEPROM.update(3,global_volume);
-  EEPROM.update(4,snd_buzz_freq);
-  EEPROM.update(5,snd_hum1_freq);
-  EEPROM.update(6,snd_hum2_freq);
-  EEPROM.update(7,snd_hum2_doppler);
-  EEPROM.update(12,snd_echo_decay);
-  // blade color
-  //EEPROM.update(8,blade_hue);
-  //EEPROM.update(9,blade_saturation);
-  //EEPROM.update(10,blade_brightness);
-  EEPROM.update(11,extend_speed);
-  // commit with the valid token
-  EEPROM.update(0,42);
-  EEPROM.update(1,!42);
+	// save the properties
+	EEPROM.update(2, button_mode);
+	// sound properties
+	EEPROM.update(3, global_volume);
+	EEPROM.update(4, snd_buzz_freq);
+	EEPROM.update(5, snd_hum1_freq);
+	EEPROM.update(6, snd_hum2_freq);
+	EEPROM.update(7, snd_hum2_doppler);
+	EEPROM.update(12, snd_echo_decay);
+	// blade color
+	//EEPROM.update(8,blade_hue);
+	//EEPROM.update(9,blade_saturation);
+	//EEPROM.update(10,blade_brightness);
+	EEPROM.update(11, extend_speed);
+	// commit with the valid token
+	EEPROM.update(0, 42);
+	EEPROM.update(1, !42);
 }
 
 
