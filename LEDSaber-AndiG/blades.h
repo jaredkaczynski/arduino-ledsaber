@@ -1,4 +1,32 @@
-typedef struct blade
+// blade modes
+#define BLADE_MODE_OFF        0
+#define BLADE_MODE_ON         1
+#define BLADE_MODE_IGNITE     2
+#define BLADE_MODE_EXTINGUISH 3
+#define BLADE_MODE_UNDERVOLT  4
+
+// Total LED power limit, of all RGB LEDS together.
+// If your strips are back-to-back in a tube without serious extra heatsinking, don't exceed 40% sustained power
+#define BLADE_POWER_LIMIT     0.30f
+// Seriously. I mean it. I heat-destroyed a blade at 100% so you don't have to. 
+// It will run for a few minutes and then neopixels will start dying.
+// we can also define limits for the individual channels, since that last 10% of brightness usually makes more heat than light (especially for red)
+#define BLADE_POWER_LIMIT_RED      0.90f
+#define BLADE_POWER_LIMIT_GREEN    0.90f
+#define BLADE_POWER_LIMIT_BLUE     0.90f
+
+// blade state
+int blade_mode = BLADE_MODE_OFF;
+//Switch to percentage
+int blade_out_percentage = 0;
+
+int extend_speed = 3;
+
+int blade_preset = 0;
+//Number of blades
+const int blade_count = 1;
+
+typedef struct Blade
 {
 	//Pointer to array of LEDs
 	CRGB* blade_leds = 0;
@@ -11,4 +39,117 @@ typedef struct blade
 	int offset;
 	//Which pin this blade is connected to on Arduino
 	int pin;
+	int blade_brightness;
+	int blade_saturation;
+	int blade_hue;
 };
+extern Blade blade_array;
+
+void update_blade(Blade b) {
+	// compute base color
+	int H = b.blade_hue;
+	int S = b.blade_saturation;
+	int V = b.blade_brightness;
+	CRGB color = CHSV(H, S, V);
+	// limit the LED power
+	float scale = 1.0;
+	scale = min(scale, (BLADE_POWER_LIMIT_RED*255.0f) / (float)color.r);
+	scale = min(scale, (BLADE_POWER_LIMIT_GREEN*255.0f) / (float)color.g);
+	scale = min(scale, (BLADE_POWER_LIMIT_BLUE*255.0f) / (float)color.b);
+	int power = (int)color.r + (int)color.g + (int)color.b;
+	scale = min(scale, (BLADE_POWER_LIMIT*3.0f*255.0f) / (float)power);
+	// rescale brightness;
+	color = CHSV(H, S, scale * (float)V);
+
+	// start index
+	int i = 0;
+	// are we in menu selection mode?
+	if (button_state == 2) {
+		// show the mode dots
+		for (int m = 0; m<MODE_COUNT; m++) {
+			if (m == button_mode) {
+				// current menu dot. both leds full brightness
+				b.blade_leds[i++] = b.blade_leds[i++] = mode_color[m];
+			}
+			else {
+				// not current item. low-intensity first dot
+				b.blade_leds[i++] = CRGB(mode_color[m].r >> 4, mode_color[m].g >> 4, mode_color[m].b >> 4);
+				b.blade_leds[i++] = CRGB::Black;
+			}
+			b.blade_leds[i++] = CRGB::Black;
+		}
+	}
+	// set the remaining strip light values
+	//This for loop is for ignite and deactivate
+	//Iterates over every LED in the blade
+	for (; i<BLADE_LEDS_COUNT; i++) {
+		if (map(i, 1, b.blade_led_count, 1, 100) < blade_out_percentage) {
+			b.blade_leds[i] = color;
+		}
+		else {
+			b.blade_leds[i] = CRGB::Black;
+		}
+	}
+	// update the LEDS now
+	LEDS.show();
+}
+//Used for extinguish/ignite
+void update_blade_array() {
+	for (int i = 0; i < blade_count; i++) {
+		update_blade(blade_array[i]);
+	}
+}
+
+void update_blade_array(int brightness, int saturation, int hue) {
+	for (int i = 0; i < blade_count; i++) {
+		//Change the blade color
+		if (brightness > 0) {
+			blade_array[i]->blade_brightness = brightness;
+		}
+		if (saturation > 0) {
+			blade_array[i].blade_saturation = saturation;
+		}
+		if (hue > 0) {
+			blade_array[i].blade_hue = hue;
+		}
+		//Update the blade color
+		update_blade(blade_array[i]);
+	}
+}
+
+// how many modes
+#define MODE_COUNT 12
+
+// mode light colour list
+CRGB mode_color[] = {
+	CRGB::White,  // mode 0 : extension
+	CRGB::White,  // mode 1 : volume
+	CRGB::Purple, // mode 2 : presets
+	CRGB::Green,  // mode 3 : blade brightness
+	CRGB::Blue,   // mode 4 : blade hue
+	CRGB::Blue,   // mode 5 : blade saturation
+	CRGB::Yellow, // mode 6 : buzz frequency
+	CRGB::Orange, // mode 7 : hum1 frequency
+	CRGB::Orange, // mode 8 : hum2 frequency
+	CRGB::Red,    // mode 9 : doppler shift
+	CRGB::Red,    // mode 10 : echo decay
+	CRGB::Black,  // mode 11 : no action
+};
+
+
+
+
+void ignite() {
+	if (blade_mode == BLADE_MODE_OFF) {
+		blade_mode = BLADE_MODE_IGNITE;
+	}
+}
+
+
+void extinguish() {
+	if (blade_mode == BLADE_MODE_ON) {
+		blade_mode = BLADE_MODE_EXTINGUISH;
+		// since this was done gracefully, store the current blade settings for next time
+		eeprom_save();
+	}
+}

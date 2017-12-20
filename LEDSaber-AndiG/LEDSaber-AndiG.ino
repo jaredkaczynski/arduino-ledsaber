@@ -2,15 +2,16 @@
 #include <Wire.h>
 #include <avr/wdt.h>
 #include <FastLED.h>
+#include "blades.h"
 
 // define our LED blade properties
 #define BLADE_LEDS_COUNT  120 // 72 for shoto, 108 for 75cm, 144 for 1m
 #define BLADE_LEDS_PIN    A2
 
 // default colour customization
-#define BLADE_BRIGHTNESS  127
-#define BLADE_SATURATION  255
-#define BLADE_HUE         144
+//#define BLADE_BRIGHTNESS  127
+//#define BLADE_SATURATION  255
+//#define BLADE_HUE         144
 // see properties.h for the presets list
 
 // inactivity timeout
@@ -31,7 +32,9 @@
 #define GYRO_VERTICAL   2
 
 // allocate the memory buffer for the LED array
-CRGB blade_leds[BLADE_LEDS_COUNT];
+//CRGB blade_leds[BLADE_LEDS_COUNT];
+//Creating an array of Blades for multi blade setups
+Blade blade_array[blade_count];
 
 // local extentions
 #include "properties.h"
@@ -87,14 +90,20 @@ void setup() {
 	Serial.begin(57600);
 	// enable watchdog timer
 	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
-	// setup the blade strip
+	// setup the blade strips
+	blade_array[0].blade_led_count = 60;
+	blade_array[0].blade_leds = (CRGB*)malloc( * sizeof(CRGB));
+	blade_array[0].
+
 	LEDS.addLeds<WS2812, BLADE_LEDS_PIN, GRB>(blade_leds, BLADE_LEDS_COUNT);
 #ifdef STATUS_LEDS
 	// setup the status strip
 	LEDS.addLeds<WS2812, STATUS_LEDS_PIN, GRB>(status_leds, STATUS_LEDS_COUNT);
 #endif
 	LEDS.setDither(0);
-	blade_length = 0; update_blade(); LEDS.show();
+	blade_out_percentage = 0;
+	update_blade();
+	LEDS.show();
 	// start i2c
 	Wire.begin();
 	MPU6050_start();
@@ -259,17 +268,17 @@ void loop() {
 		}
 		break;
 	case BLADE_MODE_IGNITE:
-		if (blade_length < BLADE_LEDS_COUNT) {
-			blade_length += extend_speed;
-			if (blade_length > BLADE_LEDS_COUNT) blade_length = BLADE_LEDS_COUNT;
-			update_blade();
+		if (blade_out_percentage < BLADE_LEDS_COUNT) {
+			blade_out_percentage += extend_speed;
+			if (blade_out_percentage > BLADE_LEDS_COUNT) blade_out_percentage = BLADE_LEDS_COUNT;
+			update_blade_array();
 			// loud volume
 			snd_buzz_volume = (40 * (unsigned int)global_volume) / 256;
 			snd_hum1_volume = (140 * (unsigned int)global_volume) / 256;
 			snd_hum2_volume = (120 * (unsigned int)global_volume) / 256;
 			// bend pitch
-			snd_hum1_speed = snd_hum1_freq + (BLADE_LEDS_COUNT - blade_length);
-			snd_hum2_speed = snd_hum2_freq + (BLADE_LEDS_COUNT - blade_length);
+			snd_hum1_speed = snd_hum1_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
+			snd_hum2_speed = snd_hum2_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
 		}
 		else {
 			blade_mode = BLADE_MODE_ON;
@@ -278,33 +287,33 @@ void loop() {
 		}
 		break;
 	case BLADE_MODE_EXTINGUISH:
-		if (blade_length > 0) {
-			blade_length--; update_blade();
+		if (blade_out_percentage > 0) {
+			blade_out_percentage--; update_blade_array();
 			// limit the volume on the way down
-			int v = (blade_length * global_volume) / BLADE_LEDS_COUNT;
+			int v = (blade_out_percentage * global_volume) / BLADE_LEDS_COUNT;
 			snd_buzz_volume = min(v, snd_buzz_volume);
 			snd_hum1_volume = min(v, snd_hum1_volume);
 			snd_hum2_volume = min(v, snd_hum2_volume);
 			// bend pitch
-			snd_hum1_speed = snd_hum1_freq + (BLADE_LEDS_COUNT - blade_length);
-			snd_hum2_speed = snd_hum2_freq + (BLADE_LEDS_COUNT - blade_length);
+			snd_hum1_speed = snd_hum1_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
+			snd_hum2_speed = snd_hum2_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
 		}
 		else {
 			blade_mode = BLADE_MODE_OFF;
 		}
 		break;
-#ifdef VOLTAGE_SHUTDOWN
-	case BLADE_MODE_UNDERVOLT:
-		// retract
-		if (blade_length > 0) {
-			blade_length--; update_blade();
-		}
-		// blink the light
-		blade_leds[0] = (shutdown_state == 0) ? CRGB::Black : CRGB::Red;
-		LEDS.show();
-		// use the beeps!
-		snd_buzz_volume = 0;
-		snd_hum1_volume = 0;
+//#ifdef VOLTAGE_SHUTDOWN
+//	case BLADE_MODE_UNDERVOLT:
+//		// retract
+//		if (blade_length > 0) {
+//			blade_length--; update_blade();
+//		}
+//		// blink the light
+//		blade_array[0].blade_leds[0] = (shutdown_state == 0) ? CRGB::Black : CRGB::Red;
+//		LEDS.show();
+//		// use the beeps!
+//		snd_buzz_volume = 0;
+//		snd_hum1_volume = 0;
 #ifdef VOLTAGE_BEEPS
 		if (shutdown_state == 0) {
 			snd_hum2_volume = 0;

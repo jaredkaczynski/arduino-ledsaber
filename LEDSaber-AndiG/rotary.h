@@ -93,10 +93,9 @@ void rotary_delta(int d) {
           // change preset number
           blade_preset = value_delta(blade_preset, d, 0, 7);
           // load preset values
-          blade_hue = preset_hue[blade_preset];
-          blade_saturation = preset_saturation[blade_preset];
+		  //Changing hue for all blades?
+		  update_blade_array(-1, preset_saturation[blade_preset], preset_hue[blade_preset]);
           extend_speed = preset_speed[blade_preset];
-          update_blade(); 
           snd_buzz_freq = preset_buzz[blade_preset];
           snd_hum1_freq = preset_hum1[blade_preset];
           snd_hum2_freq = preset_hum2[blade_preset];
@@ -104,9 +103,15 @@ void rotary_delta(int d) {
           snd_echo_decay = preset_echo[blade_preset];
           break;
         // blade properties
-        case 3: blade_brightness = value_delta(blade_brightness, d*8, 7, 255); update_blade();  break;      
-        case 4: blade_hue += d*4; update_blade();  break;
-        case 5: blade_saturation = value_delta(blade_saturation, d*8, 0, 255); update_blade();  break;
+        case 3: 
+			update_blade_array(value_delta(blade_array[0].blade_brightness, d * 8, 7, 255) ,-1,-1);
+			break;      
+        case 4: 
+			update_blade_array(-1, -1, blade_array[0].blade_hue += d * 4);
+			break;
+        case 5: 
+			update_blade_array(-1, value_delta(blade_array[0].blade_saturation, d * 8, 0, 255), -1);
+			break;
         // sound properties
         case 6: snd_buzz_freq += d; break;
         case 7: snd_hum1_freq += d; break;
@@ -122,7 +127,7 @@ void rotary_delta(int d) {
     case 2: // selecting option
       // modify mode
       button_mode = value_delta(button_mode, d, 0, MODE_COUNT-1);
-      update_blade(); 
+      update_blade_array(-1,-1,-1); 
       break;
   }
 }
