@@ -251,11 +251,16 @@ void loop() {
 
 		snd_hum1_speed = snd_hum1_freq + (rotation_history / snd_hum2_doppler);
 		snd_hum2_speed = snd_hum2_freq + (rotation_history / snd_hum2_doppler);
+
+		//Change Saber brightness during swing
+		update_blade_array_live((int)(rotation_history / snd_hum2_doppler));
+	
 		// turn velocity into volume modifications
 		av = velocity_factor;
 		if (av>1.0) av = 1.0;
 		snd_buzz_volume = 8 + (int)(av * 32.0); snd_buzz_volume = ((unsigned int)snd_buzz_volume*(unsigned int)global_volume) / 256;
 		snd_hum1_volume = 12 + (int)(av * 40.0); snd_hum1_volume = max(((unsigned int)snd_hum1_volume*(unsigned int)global_volume) / 256, snd_hum2_volume);
+		
 		// check for inactivity
 		if ((velocity_factor < 0.4) && (rotation_history < 10.0)) {
 			// inactive
@@ -274,17 +279,17 @@ void loop() {
 		}
 		break;
 	case BLADE_MODE_IGNITE:
-		if (blade_out_percentage < BLADE_LEDS_COUNT) {
+		if (blade_out_percentage < 100) {
 			blade_out_percentage += extend_speed;
-			if (blade_out_percentage > BLADE_LEDS_COUNT) blade_out_percentage = BLADE_LEDS_COUNT;
+			if (blade_out_percentage > 100) blade_out_percentage = 100;
 			update_blade_array();
 			// loud volume
 			snd_buzz_volume = (40 * (unsigned int)global_volume) / 256;
 			snd_hum1_volume = (140 * (unsigned int)global_volume) / 256;
 			snd_hum2_volume = (120 * (unsigned int)global_volume) / 256;
 			// bend pitch
-			snd_hum1_speed = snd_hum1_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
-			snd_hum2_speed = snd_hum2_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
+			snd_hum1_speed = snd_hum1_freq + (100 - blade_out_percentage);
+			snd_hum2_speed = snd_hum2_freq + (100 - blade_out_percentage);
 		}
 		else {
 			blade_mode = BLADE_MODE_ON;

@@ -27,7 +27,7 @@ int extend_speed = 2;
 
 int blade_preset = 0;
 //Number of blades
-const int blade_count = 1;
+const int blade_count = 2;
 
 typedef struct Blade
 {
@@ -69,23 +69,7 @@ byte button_state = 0;
 
 extern Blade blade_array[];
 
-
-void update_blade(Blade b) {
-	// compute base color
-	int H = b.blade_hue;
-	int S = b.blade_saturation;
-	int V = b.blade_brightness;
-	CRGB color = CHSV(H, S, V);
-	// limit the LED power
-	float scale = 1.0;
-	scale = min(scale, (BLADE_POWER_LIMIT_RED*255.0f) / (float)color.r);
-	scale = min(scale, (BLADE_POWER_LIMIT_GREEN*255.0f) / (float)color.g);
-	scale = min(scale, (BLADE_POWER_LIMIT_BLUE*255.0f) / (float)color.b);
-	int power = (int)color.r + (int)color.g + (int)color.b;
-	scale = min(scale, (BLADE_POWER_LIMIT*3.0f*255.0f) / (float)power);
-	// rescale brightness;
-	color = CHSV(H, S, scale * (float)V);
-
+void update_blade(Blade b, CRGB color) {
 	// start index
 	int i = 0;
 	// are we in menu selection mode?
@@ -119,10 +103,53 @@ void update_blade(Blade b) {
 	// update the LEDS now
 	LEDS.show();
 }
+
+void update_blade_power_scale(Blade b) {
+	// compute base color
+	int H = b.blade_hue;
+	int S = b.blade_saturation;
+	int V = b.blade_brightness;
+	CRGB color = CHSV(H, S, V);
+	// limit the LED power
+	float scale = 1.0;
+	scale = min(scale, (BLADE_POWER_LIMIT_RED*255.0f) / (float)color.r);
+	scale = min(scale, (BLADE_POWER_LIMIT_GREEN*255.0f) / (float)color.g);
+	scale = min(scale, (BLADE_POWER_LIMIT_BLUE*255.0f) / (float)color.b);
+	int power = (int)color.r + (int)color.g + (int)color.b;
+	scale = min(scale, (BLADE_POWER_LIMIT*3.0f*255.0f) / (float)power);
+	// rescale brightness;
+	color = CHSV(H, S, scale * (float)V);
+	update_blade(b,color);
+}
+
+void update_blade_power_scale_distortion(Blade b, int distortion) {
+	// compute base color
+	int H = b.blade_hue;
+	int S = b.blade_saturation;
+	int V = b.blade_brightness + distortion;
+	CRGB color = CHSV(H, S, V);
+	// limit the LED power
+	float scale = 1.0;
+	scale = min(scale, (BLADE_POWER_LIMIT_RED*255.0f) / (float)color.r);
+	scale = min(scale, (BLADE_POWER_LIMIT_GREEN*255.0f) / (float)color.g);
+	scale = min(scale, (BLADE_POWER_LIMIT_BLUE*255.0f) / (float)color.b);
+	int power = (int)color.r + (int)color.g + (int)color.b;
+	scale = min(scale, (BLADE_POWER_LIMIT*3.0f*255.0f) / (float)power);
+	// rescale brightness;
+	color = CHSV(H, S, scale * (float)V);
+	update_blade(b, color);
+}
+
 //Used for extinguish/ignite
 void update_blade_array() {
 	for (int i = 0; i < blade_count; i++) {
-		update_blade(blade_array[i]);
+		update_blade_power_scale(blade_array[i]);
+	}
+}
+
+void update_blade_array_live(int distortion) {
+	for (int i = 0; i < blade_count; i++) {
+		update_blade_power_scale_distortion(blade_array[i],distortion);
 	}
 }
 
@@ -139,7 +166,21 @@ void update_blade_array(int brightness, int saturation, int hue) {
 			blade_array[i].blade_hue = hue;
 		}
 		//Update the blade color
-		update_blade(blade_array[i]);
+		update_blade_power_scale(blade_array[i]);
+	}
+}
+
+void update_blade_array(int brightness, int hue) {
+	for (int i = 0; i < blade_count; i++) {
+		//Change the blade color
+		if (brightness > 0) {
+			blade_array[i].blade_brightness = brightness;
+		}
+		if (hue > 0) {
+			blade_array[i].blade_hue = hue;
+		}
+		//Update the blade color
+		update_blade_power_scale(blade_array[i]);
 	}
 }
 
