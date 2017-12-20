@@ -29,6 +29,7 @@ int   preset_speed[] =      {   3,   2,   2,   3,   2,   3,   2,    1 };
 
 // blade state
 int blade_mode = BLADE_MODE_OFF;
+//Switch to percentage
 int blade_length = 0;
 int blade_brightness = BLADE_BRIGHTNESS; // start at half-brightness
 int blade_hue = BLADE_HUE;
@@ -183,6 +184,7 @@ void ignite() {
     blade_mode = BLADE_MODE_IGNITE;
   }
 }
+
 
 void extinguish() {
   if(blade_mode == BLADE_MODE_ON) {
