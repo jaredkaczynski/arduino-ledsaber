@@ -138,7 +138,6 @@ ISR(TIMER1_COMPA_vect) {
   */
   unsigned int sample = 0x8000 + s1 + s2 + s3;
 
-  
 #ifndef DEBUG
   // update the PWM value with the top few bits
 #ifdef AUDIO_PWM9

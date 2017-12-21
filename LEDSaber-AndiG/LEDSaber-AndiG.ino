@@ -13,8 +13,7 @@
 
 #ifdef DEBUG
 int last_time = 0;
-#endif // 
-
+#endif 
 
 // define our LED blade properties
 #define BLADE_LEDS_PIN    A2
