@@ -16,7 +16,7 @@ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\LEDSabe
  C:\Users\razrs\Documents\Arduino\libraries\EEPROMEx/EEPROMex.h \
  C:\Users\razrs\Documents\Arduino\libraries\WireAVR/Wire.h \
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/Stream.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/FastLED.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastLED.h \
  C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/cpp_compat.h \
  C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/FastLED.h \
  C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastled_config.h \

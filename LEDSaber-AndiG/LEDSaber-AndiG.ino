@@ -1,7 +1,7 @@
 #include <EEPROMex.h>
 #include <Wire.h>
 #include <avr/wdt.h>
-#include <FastLED.h>
+#include "fastLED.h"
 
 // local extentions
 #include "properties.h"
@@ -57,6 +57,8 @@ Blade blade_array[blade_count];
 #define ROTARY_DIR_A    -1
 #define ROTARY_DIR_B    +1
 
+#define FIRE_ENABLE
+
 #include "rotary.h"
 
 int ctrl_counter = 0;
@@ -86,6 +88,11 @@ byte shutdown_state = 0;
 int  shutdown_counter = 0;
 #endif
 
+DEFINE_GRADIENT_PALETTE(heatmap_gp) {
+		0, 255, 26, 26,   //red
+		128, 204, 0, 0,   //darker red
+		255, 179, 0, 0 // very dark red
+};
 
 void setup() {
 	// start serial port?
@@ -94,11 +101,14 @@ void setup() {
 	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
 	// setup the blade strips
 	blade_array[0].blade_led_count = 60;	
+	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
 	blade_array[0].blade_brightness = 100;
 	blade_array[0].blade_hue = 200;
 	blade_array[0].blade_saturation = 100;
 	blade_array[0].pin = A2;
+	blade_array[0].myPal = heatmap_gp;
+	
 	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 	LEDS.addLeds<WS2812, A2, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 
