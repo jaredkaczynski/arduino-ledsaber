@@ -41,8 +41,6 @@
 //Creating an array of Blades for multi blade setups
 Blade blade_array[blade_count];
 
-
-
 // enable rotaty encoder switch control
 #define CONTROL_ROTARY
 // rotary control direction pins
@@ -83,6 +81,9 @@ int gyro_hum1_volume = 0;
 int accel_hum1_volume = 0;
 int inactivity_counter = INACTIVITY_TIMEOUT;
 
+//Random Blade Noise Effect
+uint16_t dist;         // A random number for our noise generator.
+
 #ifdef VOLTAGE_SHUTDOWN
 byte shutdown_state = 0;
 int  shutdown_counter = 0;
@@ -95,6 +96,7 @@ DEFINE_GRADIENT_PALETTE(heatmap_gp) {
 };
 
 void setup() {
+	dist = random16(12345);
 	// start serial port?
 	Serial.begin(57600);
 	// enable watchdog timer
@@ -263,8 +265,17 @@ void loop() {
 		snd_hum2_speed = snd_hum2_freq + (rotation_history / snd_hum2_doppler);
 
 		//Change Saber brightness during swing,optimize this somehow
-		update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
-		//FastLED.setBrightness(0...255)? Faster probably?
+		//Use ifdef brightness, ifdef noise, ifdef fire?
+		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
+		#ifdef BLADE_SWING_INTENSITY
+		FastLED.setBrightness(0);
+		#elif defined(BLADE_NOISE)
+		update_blade_array_noise();
+		#else
+		update_blade_array_fire();
+		#endif // SWING_INTENSITY
+
+
 		// turn velocity into volume modifications
 		av = velocity_factor;
 		if (av>1.0) av = 1.0;

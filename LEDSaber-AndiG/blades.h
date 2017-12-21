@@ -110,8 +110,8 @@ void update_blade_power_scale_distortion(Blade b, int distortion) {
 	int H = b.blade_hue;
 	int S = b.blade_saturation;
 	int V = b.blade_brightness + distortion;
-	if (V > 256) {
-		V = 256;
+	if (V > 255) {
+		V = 255;
 	}
 	CRGB color = CHSV(H, S, V);
 	// limit the LED power
@@ -185,6 +185,21 @@ void extinguish() {
 	}
 }
 
+//Random noise generation done in setup()
+extern uint16_t dist;
+// Wouldn't recommend changing this on the fly, or the animation will be really blocky
+uint16_t scale = 30;
+
+//Noise Effect, AKA Kylo Ren presumably
+void fillnoise8(Blade b) {
+	for (int i = 0; i < b.blade_led_count; i++) {                                      // Just ONE loop to fill up the LED array as all of the pixels change.
+		uint8_t index = inoise8(i*scale, dist + i*scale) % 255;                  // Get a value from the noise function. I'm using both x and y axis.
+		b.blade_leds[i] = ColorFromPalette(b.myPal, index, 255, LINEARBLEND);   // With that value, look up the 8 bit colour palette value and assign it to the current LED.
+	}
+	dist += beatsin8(10, 1, 4);                                               // Moving along the distance (that random number we started out with). Vary it a bit with a sine wave.
+																			  // In some sketches, I've used millis() instead of an incremented counter. Works a treat.
+} // fillnoise8()
+
 // Fire2012 by Mark Kriegsman, July 2012
 // as part of "Five Elements" shown here: http://youtu.be/knWiGsmgycY
 //// 
@@ -223,7 +238,7 @@ void extinguish() {
 // Default 120, suggested range 50-200.
 #define SPARKING 120
 
-
+//Fire effect, not sure yet
 void Fire2012(Blade b)
 {
 	// Array of temperature readings at each simulation cell
@@ -254,4 +269,17 @@ void Fire2012(Blade b)
 		pixelnumber = j;
 		b.blade_leds[pixelnumber] = color;
 	}
+}
+void update_blade_array_noise() {
+	for (int i = 0; i < blade_count; i++) {
+		fillnoise8(blade_array[i]);
+	}
+	LEDS.show();
+}
+
+void update_blade_array_fire() {
+	for (int i = 0; i < blade_count; i++) {
+		Fire2012(blade_array[i]);
+	}
+	LEDS.show();
 }
