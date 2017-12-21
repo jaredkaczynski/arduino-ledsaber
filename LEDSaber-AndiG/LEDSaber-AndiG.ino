@@ -55,7 +55,13 @@ Blade blade_array[blade_count];
 #define ROTARY_DIR_A    -1
 #define ROTARY_DIR_B    +1
 
-#define FIRE_ENABLE
+
+//Blade Effect Enable/disable
+//Independent
+#define BLADE_BRIGHTNESS_SWING_MODULATION
+//Either BLADE_FIRE for fire effect or BLADE_NOISE For noise effect
+#define BLADE_NOISE
+
 
 #include "rotary.h"
 
@@ -81,6 +87,9 @@ int gyro_hum1_volume = 0;
 int accel_hum1_volume = 0;
 int inactivity_counter = INACTIVITY_TIMEOUT;
 
+//Brightness global shift, use this for modulating brightness, effects animations
+int default_global_brightness = 225;
+
 //Random Blade Noise Effect
 uint16_t dist;         // A random number for our noise generator.
 
@@ -105,7 +114,7 @@ void setup() {
 	blade_array[0].blade_led_count = 60;	
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
-	blade_array[0].blade_brightness = 100;
+	blade_array[0].blade_brightness = 255;
 	blade_array[0].blade_hue = 200;
 	blade_array[0].blade_saturation = 100;
 	blade_array[0].pin = A2;
@@ -131,6 +140,8 @@ void setup() {
 	start_inputs();
 	// start sound system
 	snd_init();
+	//Setting blade brightness with a limit so it can be modulated during swings
+	set_blade_brightness(default_global_brightness);
 }
 
 void loop() {
@@ -241,7 +252,8 @@ void loop() {
 	case BLADE_MODE_ON:
 		// rotation hum and pitch-bend
 		rv = rotation_history;
-		if (rv<0.0) rv = 0.0;
+		//Should be 0.1 to avoid a crash from divide by zero me thinks?
+		if (rv<0.0) rv = 0.1;
 		if (rv>140.0) rv = 120.0;
 		// update the rotation echo
 		if (rv > rotation_echo) {
@@ -264,24 +276,28 @@ void loop() {
 		snd_hum1_speed = snd_hum1_freq + (rotation_history / snd_hum2_doppler);
 		snd_hum2_speed = snd_hum2_freq + (rotation_history / snd_hum2_doppler);
 
-		//Change Saber brightness during swing,optimize this somehow
-		//Use ifdef brightness, ifdef noise, ifdef fire?
-		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
-		#ifdef BLADE_SWING_INTENSITY
-		FastLED.setBrightness(0);
-		#elif defined(BLADE_NOISE)
-		update_blade_array_noise();
-		#else
-		update_blade_array_fire();
-		#endif // SWING_INTENSITY
-
-
 		// turn velocity into volume modifications
 		av = velocity_factor;
 		if (av>1.0) av = 1.0;
 		snd_buzz_volume = 8 + (int)(av * 32.0); snd_buzz_volume = ((unsigned int)snd_buzz_volume*(unsigned int)global_volume) / 256;
 		snd_hum1_volume = 12 + (int)(av * 40.0); snd_hum1_volume = max(((unsigned int)snd_hum1_volume*(unsigned int)global_volume) / 256, snd_hum2_volume);
 		
+		//Change Saber brightness during swing
+		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
+		//rotation_history range in rv is 0.1-140
+		//velocity_factor or av range is 0-1.0
+		//snd_hum2_doppler is 40
+		//Sets blade brightness 
+		#ifdef BLADE_BRIGHTNESS_SWING_MODULATION
+		set_blade_brightness(default_global_brightness + 40 * av - 20);
+		#endif
+		#ifdef BLADE_NOISE
+		update_blade_array_noise();
+		#elif defined(BLADE_FIRE)
+		update_blade_array_fire();
+		#else
+		#endif // SWING_INTENSITY
+
 		// check for inactivity
 		if ((velocity_factor < 0.4) && (rotation_history < 10.0)) {
 			// inactive

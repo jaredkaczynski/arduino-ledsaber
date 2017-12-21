@@ -70,7 +70,7 @@ byte button_state = 0;
 
 extern Blade blade_array[];
 
-void update_blade(Blade b, CRGB color) {
+void update_blade_color(Blade b, CRGB color) {
 	// start index
 	int i = 0;
 	// are we in menu selection mode?
@@ -105,37 +105,28 @@ void update_blade(Blade b, CRGB color) {
 	LEDS.show();
 }
 //Update the blade with brightness distortion
-void update_blade_power_scale_distortion(Blade b, int distortion) {
+void update_blade(Blade b) {
 	// compute base color
 	int H = b.blade_hue;
 	int S = b.blade_saturation;
-	int V = b.blade_brightness + distortion;
-	if (V > 255) {
-		V = 255;
-	}
+	int V = b.blade_brightness;
 	CRGB color = CHSV(H, S, V);
-	// limit the LED power
-	float scale = 1.0;
-	scale = min(scale, (BLADE_POWER_LIMIT_RED*255.0f) / (float)color.r);
-	scale = min(scale, (BLADE_POWER_LIMIT_GREEN*255.0f) / (float)color.g);
-	scale = min(scale, (BLADE_POWER_LIMIT_BLUE*255.0f) / (float)color.b);
-	int power = (int)color.r + (int)color.g + (int)color.b;
-	scale = min(scale, (BLADE_POWER_LIMIT*3.0f*255.0f) / (float)power);
-	// rescale brightness;
-	color = CHSV(H, S, scale * (float)V);
-	update_blade(b, color);
+
+	color = CHSV(H, S, V);
+	update_blade_color(b, color);
 }
 
-//Used for extinguish/ignite
+//Sets brightness limit globally using inbuilt function
+void set_blade_brightness(int limit) {
+	//limit the LED power using inbuilt brightness functions
+	//Default would be limit*.3 for 255 this is 76.5
+	LEDS.setBrightness(limit * BLADE_POWER_LIMIT);
+}
+
+//Used for extinguish/ignite effect
 void update_blade_array() {
 	for (int i = 0; i < blade_count; i++) {
-		update_blade_power_scale_distortion(blade_array[i],0);
-	}
-}
-//Used to change brightness of all LED Pixels
-void update_blade_array_brightness(int distortion) {
-	for (int i = 0; i < blade_count; i++) {
-		update_blade_power_scale_distortion(blade_array[i],distortion);
+		update_blade(blade_array[i]);
 	}
 }
 
@@ -152,7 +143,7 @@ void update_blade_array(int brightness, int saturation, int hue) {
 			blade_array[i].blade_hue = hue;
 		}
 		//Update the blade color
-		update_blade_power_scale_distortion(blade_array[i],0);
+		update_blade(blade_array[i]);
 	}
 }
 
@@ -166,7 +157,7 @@ void update_blade_array(int brightness, int hue) {
 			blade_array[i].blade_hue = hue;
 		}
 		//Update the blade color
-		update_blade_power_scale_distortion(blade_array[i],0);
+		update_blade(blade_array[i]);
 	}
 }
 
@@ -198,7 +189,7 @@ void fillnoise8(Blade b) {
 	}
 	dist += beatsin8(10, 1, 4);                                               // Moving along the distance (that random number we started out with). Vary it a bit with a sine wave.
 																			  // In some sketches, I've used millis() instead of an incremented counter. Works a treat.
-} // fillnoise8()
+}
 
 // Fire2012 by Mark Kriegsman, July 2012
 // as part of "Five Elements" shown here: http://youtu.be/knWiGsmgycY
