@@ -69,8 +69,14 @@ Blade blade_array[blade_count];
 //How far out on a blade you want it to be lit
 //I doubt you want this lower than 100%
 #define MAX_BLADE_PERCENTAGE  100 //100% is the whole blade
-//Brightness global shift, use this for modulating brightness, effects animations, set to <=225 for now.
+//Brightness max, with modulation during swing you want to give it a big range to change brightness
+#ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 int default_global_brightness = 225;
+//Otherwise just let brightness be maxed out, approximately 72/255 or % based on config
+#else
+int default_global_brightness = 255;
+#endif // BLADE_BRIGHTNESS_SWING_MODULATION
+
 
 #include "rotary.h"
 
@@ -250,9 +256,11 @@ void loop() {
 
 #ifdef DEBUG
 	rotation_history = random(1, 120);
-	velocity_factor = (random(1, 100) / 100);
-	Serial.println(millis()-last_time);
-	last_time = millis();
+	velocity_factor = (random(1, 100) / 100.0);
+	//Serial.println(millis()-last_time);
+	//last_time = millis();
+	Serial.println(LEDS.getBrightness());
+	Serial.println(velocity_factor);
 #endif
 
 #ifdef CONTROL_ROTARY
@@ -305,9 +313,9 @@ void loop() {
 		//Change Saber brightness during swing
 		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
 		//velocity_factor or av range is 0-1.0
-		//Sets blade brightness according to swing speed, modulating a range of 40
+		//Sets blade brightness according to swing speed, modulating a range of 60,30 up, 30 down
 		#ifdef BLADE_BRIGHTNESS_SWING_MODULATION
-		set_blade_brightness(default_global_brightness + 40 * av - 20);
+		set_blade_brightness(default_global_brightness + (60 * av) - 30);
 		#endif
 		#ifdef BLADE_NOISE
 		update_blade_array_noise();

@@ -7,7 +7,7 @@
 
 // Total LED power limit, of all RGB LEDS together.
 // If your strips are back-to-back in a tube without serious extra heatsinking, don't exceed 40% sustained power
-#define BLADE_POWER_LIMIT     0.30f
+#define BLADE_POWER_LIMIT     0.60f
 // Seriously. I mean it. I heat-destroyed a blade at 100% so you don't have to. 
 // It will run for a few minutes and then neopixels will start dying.
 // we can also define limits for the individual channels, since that last 10% of brightness usually makes more heat than light (especially for red)
@@ -120,6 +120,8 @@ void set_blade_brightness(int limit) {
 	//limit the LED power using inbuilt brightness functions
 	//Default would be limit*.3 for 255 this is 76.5
 	LEDS.setBrightness(limit * BLADE_POWER_LIMIT);
+	// update the LEDS now
+	LEDS.show();
 }
 
 //Used for extinguish/ignite effect
