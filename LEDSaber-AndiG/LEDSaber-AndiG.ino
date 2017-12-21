@@ -252,9 +252,9 @@ void loop() {
 		snd_hum1_speed = snd_hum1_freq + (rotation_history / snd_hum2_doppler);
 		snd_hum2_speed = snd_hum2_freq + (rotation_history / snd_hum2_doppler);
 
-		//Change Saber brightness during swing
-		update_blade_array_live((int)(rotation_history / snd_hum2_doppler));
-	
+		//Change Saber brightness during swing,optimize this somehow
+		update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
+		//FastLED.setBrightness(0...255)? Faster probably?
 		// turn velocity into volume modifications
 		av = velocity_factor;
 		if (av>1.0) av = 1.0;
