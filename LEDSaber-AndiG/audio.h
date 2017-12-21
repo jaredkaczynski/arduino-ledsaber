@@ -1,4 +1,4 @@
-
+#define DEBUG
 //#define AUDIO_PWM9
 #define AUDIO_PWM8
 //#define AUDIO_PWM7
@@ -139,7 +139,7 @@ ISR(TIMER1_COMPA_vect) {
   unsigned int sample = 0x8000 + s1 + s2 + s3;
 
   
-
+#ifndef DEBUG
   // update the PWM value with the top few bits
 #ifdef AUDIO_PWM9
   OCR4B = (sample >> 7) & 0x1ff;
@@ -156,6 +156,7 @@ ISR(TIMER1_COMPA_vect) {
 #ifdef AUDIO_PWM4
   OCR4B = (sample >> 12) & 0x0f;
 #endif
+#endif // !DEBUG
   /*
   // store the sample in the ring
   sound_ring[sound_ring_index] = sample >> 8;
@@ -164,7 +165,9 @@ ISR(TIMER1_COMPA_vect) {
   // done
   //digitalWrite(8,LOW);
 }
- 
+
+#ifndef DEBUG
+
 void enable_intr(){
 }
 
@@ -224,4 +227,6 @@ void snd_signal(unsigned int sample) {
 void snd_stop()  {
   TCCR4A &= ~(_BV(COM4D1));
 }
+#endif // !DEBUG
+
 

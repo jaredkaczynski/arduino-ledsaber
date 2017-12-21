@@ -1,7 +1,7 @@
 #include <EEPROMex.h>
 #include <Wire.h>
 #include <avr/wdt.h>
-#include "fastLED.h"
+#include <FastLED.h>
 
 // local extentions
 #include "properties.h"
@@ -9,8 +9,14 @@
 #include "audio.h"
 #include "blades.h"
 
+//#define DEBUG
+
+#ifdef DEBUG
+int last_time = 0;
+#endif // 
+
+
 // define our LED blade properties
-#define BLADE_LEDS_COUNT  120 // 72 for shoto, 108 for 75cm, 144 for 1m
 #define BLADE_LEDS_PIN    A2
 
 // default colour customization
@@ -61,7 +67,11 @@ Blade blade_array[blade_count];
 #define BLADE_BRIGHTNESS_SWING_MODULATION
 //Either BLADE_FIRE for fire effect or BLADE_NOISE For noise effect
 #define BLADE_NOISE
-
+//How far out on a blade you want it to be lit
+//I doubt you want this lower than 100%
+#define MAX_BLADE_PERCENTAGE  100 //100% is the whole blade
+//Brightness global shift, use this for modulating brightness, effects animations, set to <=225 for now.
+int default_global_brightness = 225;
 
 #include "rotary.h"
 
@@ -87,9 +97,6 @@ int gyro_hum1_volume = 0;
 int accel_hum1_volume = 0;
 int inactivity_counter = INACTIVITY_TIMEOUT;
 
-//Brightness global shift, use this for modulating brightness, effects animations
-int default_global_brightness = 225;
-
 //Random Blade Noise Effect
 uint16_t dist;         // A random number for our noise generator.
 
@@ -105,9 +112,11 @@ DEFINE_GRADIENT_PALETTE(heatmap_gp) {
 };
 
 void setup() {
+	Serial.println("Running2");
+	//delay(2000);
 	dist = random16(12345);
 	// start serial port?
-	Serial.begin(57600);
+	Serial.begin(9600);
 	// enable watchdog timer
 	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
 	// setup the blade strips
@@ -139,9 +148,14 @@ void setup() {
 	// setup controls
 	start_inputs();
 	// start sound system
-	snd_init();
+	//snd_init();
 	//Setting blade brightness with a limit so it can be modulated during swings
 	set_blade_brightness(default_global_brightness);
+#ifdef DEBUG
+	Serial.println("Running");
+	blade_mode = BLADE_MODE_ON;
+	ignite();
+#endif
 }
 
 void loop() {
@@ -235,6 +249,13 @@ void loop() {
 #endif
 
 
+#ifdef DEBUG
+	rotation_history = random(1, 120);
+	velocity_factor = (random(1, 100) / 100);
+	Serial.println(millis()-last_time);
+	last_time = millis();
+#endif
+
 #ifdef CONTROL_ROTARY
 	// check the controls
 	check_rotary();
@@ -284,10 +305,8 @@ void loop() {
 		
 		//Change Saber brightness during swing
 		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
-		//rotation_history range in rv is 0.1-140
 		//velocity_factor or av range is 0-1.0
-		//snd_hum2_doppler is 40
-		//Sets blade brightness 
+		//Sets blade brightness according to swing speed, modulating a range of 40
 		#ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 		set_blade_brightness(default_global_brightness + 40 * av - 20);
 		#endif
@@ -296,7 +315,7 @@ void loop() {
 		#elif defined(BLADE_FIRE)
 		update_blade_array_fire();
 		#else
-		#endif // SWING_INTENSITY
+		#endif
 
 		// check for inactivity
 		if ((velocity_factor < 0.4) && (rotation_history < 10.0)) {
@@ -316,17 +335,17 @@ void loop() {
 		}
 		break;
 	case BLADE_MODE_IGNITE:
-		if (blade_out_percentage < 100) {
+		if (blade_out_percentage < MAX_BLADE_PERCENTAGE) {
 			blade_out_percentage += extend_speed;
-			if (blade_out_percentage > 100) blade_out_percentage = 100;
+			if (blade_out_percentage > MAX_BLADE_PERCENTAGE) blade_out_percentage = MAX_BLADE_PERCENTAGE;
 			update_blade_array();
 			// loud volume
 			snd_buzz_volume = (40 * (unsigned int)global_volume) / 256;
 			snd_hum1_volume = (140 * (unsigned int)global_volume) / 256;
 			snd_hum2_volume = (120 * (unsigned int)global_volume) / 256;
 			// bend pitch
-			snd_hum1_speed = snd_hum1_freq + (100 - blade_out_percentage);
-			snd_hum2_speed = snd_hum2_freq + (100 - blade_out_percentage);
+			snd_hum1_speed = snd_hum1_freq + (MAX_BLADE_PERCENTAGE - blade_out_percentage);
+			snd_hum2_speed = snd_hum2_freq + (MAX_BLADE_PERCENTAGE - blade_out_percentage);
 		}
 		else {
 			blade_mode = BLADE_MODE_ON;
@@ -338,13 +357,13 @@ void loop() {
 		if (blade_out_percentage > 0) {
 			blade_out_percentage--; update_blade_array();
 			// limit the volume on the way down
-			int v = (blade_out_percentage * global_volume) / BLADE_LEDS_COUNT;
+			int v = (blade_out_percentage * global_volume) / MAX_BLADE_PERCENTAGE;
 			snd_buzz_volume = min(v, snd_buzz_volume);
 			snd_hum1_volume = min(v, snd_hum1_volume);
 			snd_hum2_volume = min(v, snd_hum2_volume);
 			// bend pitch
-			snd_hum1_speed = snd_hum1_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
-			snd_hum2_speed = snd_hum2_freq + (BLADE_LEDS_COUNT - blade_out_percentage);
+			snd_hum1_speed = snd_hum1_freq + (MAX_BLADE_PERCENTAGE - blade_out_percentage);
+			snd_hum2_speed = snd_hum2_freq + (MAX_BLADE_PERCENTAGE - blade_out_percentage);
 		}
 		else {
 			blade_mode = BLADE_MODE_OFF;

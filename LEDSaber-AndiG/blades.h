@@ -111,7 +111,6 @@ void update_blade(Blade b) {
 	int S = b.blade_saturation;
 	int V = b.blade_brightness;
 	CRGB color = CHSV(H, S, V);
-
 	color = CHSV(H, S, V);
 	update_blade_color(b, color);
 }
@@ -181,7 +180,7 @@ extern uint16_t dist;
 // Wouldn't recommend changing this on the fly, or the animation will be really blocky
 uint16_t scale = 30;
 
-//Noise Effect, AKA Kylo Ren presumably
+//Noise Effect, AKA Kylo Ren presumably,possibly all blades
 void fillnoise8(Blade b) {
 	for (int i = 0; i < b.blade_led_count; i++) {                                      // Just ONE loop to fill up the LED array as all of the pixels change.
 		uint8_t index = inoise8(i*scale, dist + i*scale) % 255;                  // Get a value from the noise function. I'm using both x and y axis.

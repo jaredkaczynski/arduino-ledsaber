@@ -1,5 +1,5 @@
-C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\LEDSaber-AndiG.cpp.o: \
- C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\LEDSaber-AndiG.cpp \
+C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\LEDSaber-AndiG.cpp.o: \
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\LEDSaber-AndiG.cpp \
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/Arduino.h \
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/binary.h \
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/WCharacter.h \
@@ -10,54 +10,52 @@ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\LEDSabe
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/Printable.h \
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/USBAPI.h \
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/Arduino.h \
- C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/USBDesc.h \
- C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/USBCore.h \
- C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\variants\leonardo/pins_arduino.h \
+ C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\variants\standard/pins_arduino.h \
  C:\Users\razrs\Documents\Arduino\libraries\EEPROMEx/EEPROMex.h \
  C:\Users\razrs\Documents\Arduino\libraries\WireAVR/Wire.h \
  C:\Users\razrs\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.19\cores\arduino/Stream.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastLED.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/cpp_compat.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/FastLED.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastled_config.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/led_sysdefs.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/platforms/avr/led_sysdefs_avr.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/bitswap.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/controller.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/pixeltypes.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/lib8tion.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/lib8tion/math8.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/lib8tion/scale8.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/lib8tion/random8.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/lib8tion/trig8.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/color.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastpin.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastspi_types.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/./dmx.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/./FastLED.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/platforms.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/platforms/avr/fastled_avr.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastled_delay.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/platforms/avr/fastpin_avr.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/platforms/avr/fastspi_avr.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/platforms/avr/clockless_trinket.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/controller.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/lib8tion.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastled_progmem.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/hsv2rgb.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/colorutils.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/pixelset.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/colorpalettes.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/noise.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/power_mgt.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastspi.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastspi_bitbang.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/fastled_delay.h \
- C:\Users\razrs\Documents\Arduino\libraries\FastLED-3.1.3/chipsets.h \
- C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\properties.h \
- C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\mpu6050.h \
- C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\audio.h \
- C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\blades.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/FastLED.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/cpp_compat.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/FastLED.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/fastled_config.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/led_sysdefs.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/platforms/avr/led_sysdefs_avr.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/fastled_delay.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/bitswap.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/controller.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/pixeltypes.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/lib8tion.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/lib8tion/math8.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/lib8tion/scale8.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/lib8tion/scale8.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/lib8tion/random8.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/lib8tion/trig8.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/color.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/fastpin.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/fastspi_types.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/./dmx.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/./FastLED.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/platforms.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/platforms/avr/fastled_avr.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/platforms/avr/fastpin_avr.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/platforms/avr/fastspi_avr.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/platforms/avr/clockless_trinket.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/controller.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/lib8tion.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/fastled_progmem.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/hsv2rgb.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/colorutils.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/pixelset.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/colorpalettes.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/noise.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/power_mgt.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/fastspi.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/fastspi_bitbang.h \
+ C:\Users\razrs\Documents\Arduino\libraries\FastLED/chipsets.h \
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\properties.h \
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\mpu6050.h \
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\audio.h \
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\blades.h \
  C:\Program\ Files\ (x86)\Microsoft\ Visual\ Studio\2017\Community\Common7\IDE\Extensions\pbd1usl1.2ll\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h \
- C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\rotary.h \
- C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\leonardo\Debug\encoder.h
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\rotary.h \
+ C:\Users\razrs\AppData\Local\Temp\VMBuilds\LEDSaber-AndiG\uno\Debug\encoder.h
