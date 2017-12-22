@@ -1,4 +1,4 @@
-#define FASTLED_FORCE_SOFTWARE_SPI 1
+//#define FASTLED_FORCE_SOFTWARE_SPI 1
 
 #include <EEPROMex.h>
 #include <Wire.h>
@@ -71,6 +71,7 @@ Blade blade_array[blade_count];
 //#define BLADE_BRIGHTNESS_SWING_MODULATION
 //Either BLADE_FIRE for fire effect or BLADE_NOISE For noise effect
 #define BLADE_NOISE
+//#define BLADE_FIRE
 //How far out on a blade you want it to be lit
 //I doubt you want this lower than 100%
 #define MAX_BLADE_PERCENTAGE 100 //100% is the whole blade
@@ -135,11 +136,11 @@ void setup() {
 	blade_array[0].blade_red = 255;
 	blade_array[0].blade_green = 255;
 	blade_array[0].blade_blue = 255;
-	blade_array[0].pin = 6;
+	blade_array[0].pin = 11;
 	blade_array[0].myPal = heatmap_gp;
 
 	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
-	LEDS.addLeds<WS2812, 6, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
+	LEDS.addLeds<WS2812, 11, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 
 #ifdef STATUS_LEDS
 	// setup the status strip
@@ -342,6 +343,7 @@ void loop() {
 		break;
 	case BLADE_MODE_IGNITE:
 		if (blade_out_percentage < MAX_BLADE_PERCENTAGE) {
+			Serial.println(blade_out_percentage);
 			blade_out_percentage += extend_speed;
 			if (blade_out_percentage > MAX_BLADE_PERCENTAGE) blade_out_percentage = MAX_BLADE_PERCENTAGE;
 			update_blade_array();
@@ -402,4 +404,6 @@ void loop() {
 		break;
 #endif
 	}
+	// update the LEDS now
+	LEDS.show();
 	}

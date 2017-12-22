@@ -11,7 +11,7 @@ int   preset_speed[] =      {   3,   2,   2,   3,   2,   3,   2,    1 };
 //Import the variables to use this file as the EEPROM save file
 extern byte button_state;
 extern int button_mode;
-extern int extend_speed;
+extern double extend_speed;
 
 // audio state
 byte global_volume = 240;

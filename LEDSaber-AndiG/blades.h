@@ -21,9 +21,9 @@
 // blade state
 int blade_mode = BLADE_MODE_OFF;
 //Switch to percentage
-int blade_out_percentage = 0;
+double blade_out_percentage = 0;
 
-int extend_speed = 1;
+double extend_speed = 1;
 
 int blade_preset = 0;
 //Number of blades
@@ -106,9 +106,8 @@ void update_blade(Blade *b) {
 			//break;
 		}
 	}
-	// update the LEDS now
-	LEDS.show();
 }
+
 //Update the blade refractored
 //void update_blade2(Blade b) {
 //	// compute base color
@@ -126,7 +125,6 @@ void set_blade_brightness(int limit) {
 	//Default would be limit*.3 for 255 this is 76.5
 	LEDS.setBrightness(limit * BLADE_POWER_LIMIT);
 	// update the LEDS now
-	LEDS.show();
 }
 
 //Used for extinguish/ignite effect
@@ -185,7 +183,7 @@ void extinguish() {
 //Random noise generation done in setup()
 extern uint16_t dist;
 // Wouldn't recommend changing this on the fly, or the animation will be really blocky
-uint16_t scale = 30;
+uint16_t scale = 60;
 
 //Noise Effect, AKA Kylo Ren presumably,possibly all blades
 void fillnoise8(Blade b) {
@@ -193,7 +191,7 @@ void fillnoise8(Blade b) {
 		uint8_t index = inoise8(i*scale, dist + i*scale) % 255;                  // Get a value from the noise function. I'm using both x and y axis.
 		b.blade_leds[i] = ColorFromPalette(b.myPal, index, 255, LINEARBLEND);   // With that value, look up the 8 bit colour palette value and assign it to the current LED.
 	}
-	dist += beatsin8(10, 1, 4);                                               // Moving along the distance (that random number we started out with). Vary it a bit with a sine wave.
+	dist += beatsin8(50, 1, 4);                                               // Moving along the distance (that random number we started out with). Vary it a bit with a sine wave.
 																			  // In some sketches, I've used millis() instead of an incremented counter. Works a treat.
 }
 
@@ -228,7 +226,7 @@ void fillnoise8(Blade b) {
 // COOLING: How much does the air cool as it rises?
 // Less cooling = taller flames.  More cooling = shorter flames.
 // Default 50, suggested range 20-100 
-#define COOLING  10
+#define COOLING  50
 
 // SPARKING: What chance (out of 255) is there that a new spark will be lit?
 // Higher chance = more roaring fire.  Lower chance = more flickery fire.
@@ -271,12 +269,10 @@ void update_blade_array_noise() {
 	for (int i = 0; i < blade_count; i++) {
 		fillnoise8(blade_array[i]);
 	}
-	LEDS.show();
 }
 
 void update_blade_array_fire() {
 	for (int i = 0; i < blade_count; i++) {
 		Fire2012(blade_array[i]);
 	}
-	LEDS.show();
 }
