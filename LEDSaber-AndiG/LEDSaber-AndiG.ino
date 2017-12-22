@@ -11,11 +11,7 @@
 #include "audio.h"
 #include "blades.h"
 
-//#define DEBUG
-
-#ifdef DEBUG
-int last_time = 0;
-#endif 
+#define DEBUG
 
 // define our LED blade properties
 #define BLADE_LEDS_PIN    A2
@@ -60,6 +56,10 @@ Blade blade_array[blade_count];
 // rotary control switch pins
 #define ROTARY_SW_PIN    8
 #define ROTARY_GND2_PIN  6
+
+//Switching over to a 2 button setup instead of the rotary encoder for 1, simplicity, 2 appearance
+#define BUTTON_B1_PIN 2
+#define BUTTON_B2_PIN 3
 
 // flip these if your knob goes backwards from what you expect
 #define ROTARY_DIR_A    -1
@@ -128,13 +128,7 @@ DEFINE_GRADIENT_PALETTE(heatmap_luke) {
 		255, 59, 236, 255 // lighter blue
 };
 
-void setup() {
-	//delay(2000);
-	dist = random16(12345);
-	// start serial port?
-	Serial.begin(9600);
-	// enable watchdog timer
-	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
+void init_leds() {
 	// setup the blade strips
 	blade_array[0].blade_led_count = 30;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
@@ -160,13 +154,28 @@ void setup() {
 	//Turn LEDs off on startup
 	LEDS.clear();
 	LEDS.show();
+}
+
+void setup() {
+	//delay(2000);
+	dist = random16(12345);
+	// start serial port?
+	Serial.begin(9600);
+	// enable watchdog timer
+	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
+	init_leds();
 	// start i2c
 	Wire.begin();
 	MPU6050_start();
 	// restore our saved state
 	eeprom_restore();
-	// setup controls
-	start_inputs();
+	// setup controls, either button or rotary switch
+#ifdef ROTARY
+	start_inputs_rotary();
+#else
+	start_inputs_button();
+#endif // ROTARY
+
 	// start sound system
 	//snd_init();
 #ifdef DEBUG

@@ -104,12 +104,15 @@ void rotary_delta(int d) {
           break;
         // blade properties
         case 3: 
+			//update hue
 			update_blade_array(value_delta(blade_array[0].blade_blue, d * 8, 7, 255) ,-1,-1);
 			break;      
         case 4: 
+			//update brightness/value
 			update_blade_array(-1, -1, blade_array[0].blade_red += d * 4);
 			break;
         case 5: 
+			//update saturation
 			update_blade_array(-1, value_delta(blade_array[0].blade_green, d * 8, 0, 255), -1);
 			break;
         // sound properties
@@ -182,7 +185,13 @@ void check_rotary() {
   }
 }
 
-void start_inputs() {
+void start_inputs_button() {
+	pinMode(BUTTON_B1_PIN, INPUT_PULLUP);
+	pinMode(BUTTON_B2_PIN, INPUT_PULLUP);
+
+}
+
+void start_inputs_rotary() {
   pinMode(ROTARY_SW_PIN, INPUT_PULLUP); 
   pinMode(ROTARY_D1_PIN, INPUT_PULLUP); 
   pinMode(ROTARY_D2_PIN, INPUT_PULLUP); 
