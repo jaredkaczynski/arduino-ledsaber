@@ -23,11 +23,11 @@ int blade_mode = BLADE_MODE_OFF;
 //Switch to percentage
 int blade_out_percentage = 0;
 
-int extend_speed = 2;
+int extend_speed = 1;
 
 int blade_preset = 0;
 //Number of blades
-const int blade_count = 2;
+const int blade_count = 1;
 
 typedef struct Blade
 {
@@ -42,9 +42,9 @@ typedef struct Blade
 	int offset;
 	//Which pin this blade is connected to on Arduino
 	uint8_t pin;
-	int blade_brightness;
-	int blade_saturation;
-	int blade_hue;
+	int blade_red;
+	int blade_blue;
+	int blade_green;
 	CRGBPalette16 myPal;
 };
 
@@ -71,7 +71,6 @@ byte button_state = 0;
 extern Blade blade_array[];
 
 void update_blade_color(Blade b, CRGB color) {
-	// start index
 	int i = 0;
 	// are we in menu selection mode?
 	if (button_state == 2) {
@@ -93,12 +92,19 @@ void update_blade_color(Blade b, CRGB color) {
 	//This for loop is for ignite and deactivate
 	//Iterates over every LED in the blade
 	for (; i<b.blade_led_count; i++) {
-		if (map(i, 1, b.blade_led_count, 1, 100) < blade_out_percentage) {
-			b.blade_leds[i] = color;
+		if (map(i, 0, b.blade_led_count-1, 1, 100) < blade_out_percentage) {
+			Serial.println("Lighting LED");
+			b.blade_leds[i].setColorCode(color);
+			if (color.blue > 0) {
+				Serial.println(color.red);
+				Serial.println(color.green);
+				Serial.println(color.blue);
+			}
 		}
 		else {
 			b.blade_leds[i] = CRGB::Black;
 			//Can I break here for efficiency?
+			//break;
 		}
 	}
 	// update the LEDS now
@@ -107,11 +113,11 @@ void update_blade_color(Blade b, CRGB color) {
 //Update the blade with brightness distortion
 void update_blade(Blade b) {
 	// compute base color
-	int H = b.blade_hue;
-	int S = b.blade_saturation;
-	int V = b.blade_brightness;
-	CRGB color = CHSV(H, S, V);
-	color = CHSV(H, S, V);
+	int H = b.blade_green;
+	int S = b.blade_blue;
+	int V = b.blade_red;
+	//CRGB color = CHSV(H, S, V);
+	CRGB color = CRGB(H, S, V);
 	update_blade_color(b, color);
 }
 
@@ -135,13 +141,13 @@ void update_blade_array(int brightness, int saturation, int hue) {
 	for (int i = 0; i < blade_count; i++) {
 		//Change the blade color
 		if (brightness > 0) {
-			blade_array[i].blade_brightness = brightness;
+			blade_array[i].blade_red = brightness;
 		}
 		if (saturation > 0) {
-			blade_array[i].blade_saturation = saturation;
+			blade_array[i].blade_blue = saturation;
 		}
 		if (hue > 0) {
-			blade_array[i].blade_hue = hue;
+			blade_array[i].blade_green = hue;
 		}
 		//Update the blade color
 		update_blade(blade_array[i]);
@@ -152,10 +158,10 @@ void update_blade_array(int brightness, int hue) {
 	for (int i = 0; i < blade_count; i++) {
 		//Change the blade color
 		if (brightness > 0) {
-			blade_array[i].blade_brightness = brightness;
+			blade_array[i].blade_red = brightness;
 		}
 		if (hue > 0) {
-			blade_array[i].blade_hue = hue;
+			blade_array[i].blade_green = hue;
 		}
 		//Update the blade color
 		update_blade(blade_array[i]);

@@ -104,13 +104,13 @@ void rotary_delta(int d) {
           break;
         // blade properties
         case 3: 
-			update_blade_array(value_delta(blade_array[0].blade_brightness, d * 8, 7, 255) ,-1,-1);
+			update_blade_array(value_delta(blade_array[0].blade_red, d * 8, 7, 255) ,-1,-1);
 			break;      
         case 4: 
-			update_blade_array(-1, -1, blade_array[0].blade_hue += d * 4);
+			update_blade_array(-1, -1, blade_array[0].blade_green += d * 4);
 			break;
         case 5: 
-			update_blade_array(-1, value_delta(blade_array[0].blade_saturation, d * 8, 0, 255), -1);
+			update_blade_array(-1, value_delta(blade_array[0].blade_blue, d * 8, 0, 255), -1);
 			break;
         // sound properties
         case 6: snd_buzz_freq += d; break;

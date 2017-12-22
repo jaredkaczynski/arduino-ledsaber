@@ -28,7 +28,10 @@ int last_time = 0;
 #define INACTIVITY_TIMEOUT 8000 // about 30 seconds
 
 // voltage shutdown propertues
-#define VOLTAGE_SHUTDOWN       (3.6f * 3.0f)     // minimum voltage required
+#ifndef DEBUG
+#define VOLTAGE_SHUTDOWN       (3.6f * 3.0f) // minimum voltage required
+#endif // !DEBUG
+ 
 #define VOLTAGE_SENSOR_RATIO   (2.10f / 12.60f)  // ratio between sensor voltage and real battery voltage (1:6 by default)
 #define VOLTAGE_SENSOR_PIN      A3               // pin used by voltage sensor
 #define VOLTAGE_BEEPS                // do we beep when undervoltage?
@@ -65,10 +68,10 @@ Blade blade_array[blade_count];
 //Independent
 #define BLADE_BRIGHTNESS_SWING_MODULATION
 //Either BLADE_FIRE for fire effect or BLADE_NOISE For noise effect
-#define BLADE_NOISE
+//#define BLADE_NOISE
 //How far out on a blade you want it to be lit
 //I doubt you want this lower than 100%
-#define MAX_BLADE_PERCENTAGE  100 //100% is the whole blade
+#define MAX_BLADE_PERCENTAGE 100 //100% is the whole blade
 //Brightness max, with modulation during swing you want to give it a big range to change brightness
 #ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 int default_global_brightness = 225;
@@ -117,7 +120,6 @@ DEFINE_GRADIENT_PALETTE(heatmap_gp) {
 };
 
 void setup() {
-	Serial.println("Running2");
 	//delay(2000);
 	dist = random16(12345);
 	// start serial port?
@@ -125,12 +127,12 @@ void setup() {
 	// enable watchdog timer
 	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
 	// setup the blade strips
-	blade_array[0].blade_led_count = 60;	
+	blade_array[0].blade_led_count = 30;	
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
-	blade_array[0].blade_brightness = 255;
-	blade_array[0].blade_hue = 200;
-	blade_array[0].blade_saturation = 100;
+	blade_array[0].blade_red = 255;
+	blade_array[0].blade_green = 255;
+	blade_array[0].blade_blue = 255;
 	blade_array[0].pin = A2;
 	blade_array[0].myPal = heatmap_gp;
 	
@@ -141,9 +143,12 @@ void setup() {
 	// setup the status strip
 	LEDS.addLeds<WS2812, STATUS_LEDS_PIN, GRB>(status_leds, STATUS_LEDS_COUNT);
 #endif
+	//Setting blade brightness with a limit so it can be modulated during swings
+	set_blade_brightness(default_global_brightness);
 	LEDS.setDither(0);
 	blade_out_percentage = 0;
 	update_blade_array();
+	LEDS.clear();
 	LEDS.show();
 	// start i2c
 	Wire.begin();
@@ -154,11 +159,8 @@ void setup() {
 	start_inputs();
 	// start sound system
 	//snd_init();
-	//Setting blade brightness with a limit so it can be modulated during swings
-	set_blade_brightness(default_global_brightness);
 #ifdef DEBUG
 	Serial.println("Running");
-	blade_mode = BLADE_MODE_ON;
 	ignite();
 #endif
 }
@@ -259,8 +261,8 @@ void loop() {
 	velocity_factor = (random(1, 100) / 100.0);
 	//Serial.println(millis()-last_time);
 	//last_time = millis();
-	Serial.println(LEDS.getBrightness());
-	Serial.println(velocity_factor);
+	//Serial.println(LEDS.getBrightness());
+	//Serial.println(velocity_factor);
 #endif
 
 #ifdef CONTROL_ROTARY
@@ -376,6 +378,7 @@ void loop() {
 			blade_mode = BLADE_MODE_OFF;
 		}
 		break;
+		LEDS.show();
 #ifdef VOLTAGE_SHUTDOWN
 	case BLADE_MODE_UNDERVOLT:
 		// retract
