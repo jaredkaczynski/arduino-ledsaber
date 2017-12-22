@@ -149,7 +149,6 @@ void setup() {
 	blade_out_percentage = 0;
 	update_blade_array();
 	LEDS.clear();
-	LEDS.show();
 	// start i2c
 	Wire.begin();
 	MPU6050_start();

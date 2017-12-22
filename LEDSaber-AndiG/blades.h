@@ -70,7 +70,12 @@ byte button_state = 0;
 
 extern Blade blade_array[];
 
-void update_blade_color(Blade b, CRGB color) {
+void update_blade(Blade *b) {
+	int H = b->blade_green;
+	int S = b->blade_blue;
+	int V = b->blade_red;
+	//CRGB color = CHSV(H, S, V);
+	CRGB color = CRGB(H, S, V);
 	int i = 0;
 	// are we in menu selection mode?
 	if (button_state == 2) {
@@ -78,23 +83,23 @@ void update_blade_color(Blade b, CRGB color) {
 		for (int m = 0; m<MODE_COUNT; m++) {
 			if (m == button_mode) {
 				// current menu dot. both leds full brightness
-				b.blade_leds[i++] = b.blade_leds[i++] = mode_color[m];
+				b->blade_leds[i++] = b->blade_leds[i++] = mode_color[m];
 			}
 			else {
 				// not current item. low-intensity first dot
-				b.blade_leds[i++] = CRGB(mode_color[m].r >> 4, mode_color[m].g >> 4, mode_color[m].b >> 4);
-				b.blade_leds[i++] = CRGB::Black;
+				b->blade_leds[i++] = CRGB(mode_color[m].r >> 4, mode_color[m].g >> 4, mode_color[m].b >> 4);
+				b->blade_leds[i++] = CRGB::Black;
 			}
-			b.blade_leds[i++] = CRGB::Black;
+			b->blade_leds[i++] = CRGB::Black;
 		}
 	}
 	// set the remaining strip light values
 	//This for loop is for ignite and deactivate
 	//Iterates over every LED in the blade
-	for (; i<b.blade_led_count; i++) {
-		if (map(i, 0, b.blade_led_count-1, 1, 100) < blade_out_percentage) {
+	for (; i<b->blade_led_count; i++) {
+		if (map(i, 0, b->blade_led_count-1, 1, 100) < blade_out_percentage) {
 			Serial.println("Lighting LED");
-			b.blade_leds[i].setColorCode(color);
+			b->blade_leds[i].setColorCode(color);
 			if (color.blue > 0) {
 				Serial.println(color.red);
 				Serial.println(color.green);
@@ -102,7 +107,7 @@ void update_blade_color(Blade b, CRGB color) {
 			}
 		}
 		else {
-			b.blade_leds[i] = CRGB::Black;
+			b->blade_leds[i] = CRGB::Black;
 			//Can I break here for efficiency?
 			//break;
 		}
@@ -110,16 +115,16 @@ void update_blade_color(Blade b, CRGB color) {
 	// update the LEDS now
 	LEDS.show();
 }
-//Update the blade with brightness distortion
-void update_blade(Blade b) {
-	// compute base color
-	int H = b.blade_green;
-	int S = b.blade_blue;
-	int V = b.blade_red;
-	//CRGB color = CHSV(H, S, V);
-	CRGB color = CRGB(H, S, V);
-	update_blade_color(b, color);
-}
+//Update the blade refractored
+//void update_blade2(Blade b) {
+//	// compute base color
+//	int H = b.blade_green;
+//	int S = b.blade_blue;
+//	int V = b.blade_red;
+//	//CRGB color = CHSV(H, S, V);
+//	CRGB color = CRGB(H, S, V);
+//	update_blade(b, color);
+//}
 
 //Sets brightness limit globally using inbuilt function
 void set_blade_brightness(int limit) {
@@ -133,7 +138,7 @@ void set_blade_brightness(int limit) {
 //Used for extinguish/ignite effect
 void update_blade_array() {
 	for (int i = 0; i < blade_count; i++) {
-		update_blade(blade_array[i]);
+		update_blade(&blade_array[i]);
 	}
 }
 
@@ -150,7 +155,7 @@ void update_blade_array(int brightness, int saturation, int hue) {
 			blade_array[i].blade_green = hue;
 		}
 		//Update the blade color
-		update_blade(blade_array[i]);
+		update_blade(&blade_array[i]);
 	}
 }
 
@@ -164,7 +169,7 @@ void update_blade_array(int brightness, int hue) {
 			blade_array[i].blade_green = hue;
 		}
 		//Update the blade color
-		update_blade(blade_array[i]);
+		update_blade(&blade_array[i]);
 	}
 }
 
