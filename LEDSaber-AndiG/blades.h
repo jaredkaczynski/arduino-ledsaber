@@ -98,13 +98,7 @@ void update_blade(Blade *b) {
 	//Iterates over every LED in the blade
 	for (; i<b->blade_led_count; i++) {
 		if (map(i, 0, b->blade_led_count-1, 1, 100) < blade_out_percentage) {
-			Serial.println("Lighting LED");
-			b->blade_leds[i].setColorCode(color);
-			if (color.blue > 0) {
-				Serial.println(color.red);
-				Serial.println(color.green);
-				Serial.println(color.blue);
-			}
+			b->blade_leds[i] = color;
 		}
 		else {
 			b->blade_leds[i] = CRGB::Black;

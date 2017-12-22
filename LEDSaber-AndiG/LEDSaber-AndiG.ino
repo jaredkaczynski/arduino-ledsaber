@@ -1,3 +1,5 @@
+#define FASTLED_FORCE_SOFTWARE_SPI 1
+
 #include <EEPROMex.h>
 #include <Wire.h>
 #include <avr/wdt.h>
@@ -31,7 +33,7 @@ int last_time = 0;
 #ifndef DEBUG
 #define VOLTAGE_SHUTDOWN       (3.6f * 3.0f) // minimum voltage required
 #endif // !DEBUG
- 
+
 #define VOLTAGE_SENSOR_RATIO   (2.10f / 12.60f)  // ratio between sensor voltage and real battery voltage (1:6 by default)
 #define VOLTAGE_SENSOR_PIN      A3               // pin used by voltage sensor
 #define VOLTAGE_BEEPS                // do we beep when undervoltage?
@@ -66,9 +68,9 @@ Blade blade_array[blade_count];
 
 //Blade Effect Enable/disable
 //Independent
-#define BLADE_BRIGHTNESS_SWING_MODULATION
+//#define BLADE_BRIGHTNESS_SWING_MODULATION
 //Either BLADE_FIRE for fire effect or BLADE_NOISE For noise effect
-//#define BLADE_NOISE
+#define BLADE_NOISE
 //How far out on a blade you want it to be lit
 //I doubt you want this lower than 100%
 #define MAX_BLADE_PERCENTAGE 100 //100% is the whole blade
@@ -114,7 +116,7 @@ int  shutdown_counter = 0;
 #endif
 
 DEFINE_GRADIENT_PALETTE(heatmap_gp) {
-		0, 255, 26, 26,   //red
+	0, 255, 26, 26,   //red
 		128, 204, 0, 0,   //darker red
 		255, 179, 0, 0 // very dark red
 };
@@ -127,17 +129,17 @@ void setup() {
 	// enable watchdog timer
 	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
 	// setup the blade strips
-	blade_array[0].blade_led_count = 30;	
+	blade_array[0].blade_led_count = 30;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
 	blade_array[0].blade_red = 255;
 	blade_array[0].blade_green = 255;
 	blade_array[0].blade_blue = 255;
-	blade_array[0].pin = A2;
+	blade_array[0].pin = 6;
 	blade_array[0].myPal = heatmap_gp;
-	
+
 	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
-	LEDS.addLeds<WS2812, A2, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
+	LEDS.addLeds<WS2812, 6, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 
 #ifdef STATUS_LEDS
 	// setup the status strip
@@ -232,13 +234,13 @@ void loop() {
 				// beep
 				shutdown_state = 1;
 				shutdown_counter = VOLTAGE_BEEPS_ON;
-			}
+	}
 			else {
 				// silence     
 				shutdown_state = 0;
 				shutdown_counter = VOLTAGE_BEEPS_OFF;
 			}
-		}
+}
 		else {
 			shutdown_counter--;
 		}
@@ -258,10 +260,6 @@ void loop() {
 #ifdef DEBUG
 	rotation_history = random(1, 120);
 	velocity_factor = (random(1, 100) / 100.0);
-	//Serial.println(millis()-last_time);
-	//last_time = millis();
-	//Serial.println(LEDS.getBrightness());
-	//Serial.println(velocity_factor);
 #endif
 
 #ifdef CONTROL_ROTARY
@@ -310,20 +308,20 @@ void loop() {
 		if (av>1.0) av = 1.0;
 		snd_buzz_volume = 8 + (int)(av * 32.0); snd_buzz_volume = ((unsigned int)snd_buzz_volume*(unsigned int)global_volume) / 256;
 		snd_hum1_volume = 12 + (int)(av * 40.0); snd_hum1_volume = max(((unsigned int)snd_hum1_volume*(unsigned int)global_volume) / 256, snd_hum2_volume);
-		
+
 		//Change Saber brightness during swing
 		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
 		//velocity_factor or av range is 0-1.0
 		//Sets blade brightness according to swing speed, modulating a range of 60,30 up, 30 down
-		#ifdef BLADE_BRIGHTNESS_SWING_MODULATION
+#ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 		set_blade_brightness(default_global_brightness + (60 * av) - 30);
-		#endif
-		#ifdef BLADE_NOISE
+#endif
+#ifdef BLADE_NOISE
 		update_blade_array_noise();
-		#elif defined(BLADE_FIRE)
+#elif defined(BLADE_FIRE)
 		update_blade_array_fire();
-		#else
-		#endif
+#else
+#endif
 
 		// check for inactivity
 		if ((velocity_factor < 0.4) && (rotation_history < 10.0)) {
@@ -405,5 +403,3 @@ void loop() {
 #endif
 	}
 	}
-
-
