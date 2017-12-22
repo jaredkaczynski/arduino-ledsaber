@@ -122,6 +122,11 @@ DEFINE_GRADIENT_PALETTE(heatmap_gp) {
 		255, 179, 0, 0 // very dark red
 };
 
+DEFINE_GRADIENT_PALETTE(heatmap_luke) {
+	0, 0, 204, 255,   //red
+		255, 0, 255, 255 // very dark red
+};
+
 void setup() {
 	//delay(2000);
 	dist = random16(12345);
@@ -133,11 +138,11 @@ void setup() {
 	blade_array[0].blade_led_count = 30;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
-	blade_array[0].blade_red = 255;
-	blade_array[0].blade_green = 255;
+	blade_array[0].blade_red = 0;
+	blade_array[0].blade_green = 205;
 	blade_array[0].blade_blue = 255;
 	blade_array[0].pin = 11;
-	blade_array[0].myPal = heatmap_gp;
+	blade_array[0].myPal = heatmap_luke;
 
 	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 	LEDS.addLeds<WS2812, 11, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
@@ -343,8 +348,9 @@ void loop() {
 		break;
 	case BLADE_MODE_IGNITE:
 		if (blade_out_percentage < MAX_BLADE_PERCENTAGE) {
-			Serial.println(blade_out_percentage);
-			blade_out_percentage += extend_speed;
+			/*Serial.println(extend_speed);*/
+			blade_out_percentage += 1;
+			//Serial.println(blade_out_percentage);
 			if (blade_out_percentage > MAX_BLADE_PERCENTAGE) blade_out_percentage = MAX_BLADE_PERCENTAGE;
 			update_blade_array();
 			// loud volume
@@ -359,11 +365,12 @@ void loop() {
 			blade_mode = BLADE_MODE_ON;
 			rotation_history = 100.0;
 			inactivity_counter = INACTIVITY_TIMEOUT;
+			extinguish();
 		}
 		break;
 	case BLADE_MODE_EXTINGUISH:
 		if (blade_out_percentage > 0) {
-			blade_out_percentage--; update_blade_array();
+			blade_out_percentage-=1; update_blade_array();
 			// limit the volume on the way down
 			int v = (blade_out_percentage * global_volume) / MAX_BLADE_PERCENTAGE;
 			snd_buzz_volume = min(v, snd_buzz_volume);
@@ -375,6 +382,7 @@ void loop() {
 		}
 		else {
 			blade_mode = BLADE_MODE_OFF;
+			ignite();
 		}
 		break;
 		LEDS.show();

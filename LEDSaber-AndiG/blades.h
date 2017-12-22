@@ -7,7 +7,7 @@
 
 // Total LED power limit, of all RGB LEDS together.
 // If your strips are back-to-back in a tube without serious extra heatsinking, don't exceed 40% sustained power
-#define BLADE_POWER_LIMIT     0.60f
+#define BLADE_POWER_LIMIT     0.40f
 // Seriously. I mean it. I heat-destroyed a blade at 100% so you don't have to. 
 // It will run for a few minutes and then neopixels will start dying.
 // we can also define limits for the individual channels, since that last 10% of brightness usually makes more heat than light (especially for red)
@@ -22,7 +22,7 @@
 int blade_mode = BLADE_MODE_OFF;
 //Switch to percentage
 double blade_out_percentage = 0;
-
+//This doesn't work for some reason, thanks weird code
 double extend_speed = 1;
 
 int blade_preset = 0;
@@ -42,9 +42,9 @@ typedef struct Blade
 	int offset;
 	//Which pin this blade is connected to on Arduino
 	uint8_t pin;
-	int blade_red;
 	int blade_blue;
 	int blade_green;
+	int blade_red;
 	CRGBPalette16 myPal;
 };
 
@@ -71,9 +71,9 @@ byte button_state = 0;
 extern Blade blade_array[];
 
 void update_blade(Blade *b) {
-	int H = b->blade_green;
-	int S = b->blade_blue;
-	int V = b->blade_red;
+	int H = b->blade_red;
+	int S = b->blade_green;
+	int V = b->blade_blue;
 	//CRGB color = CHSV(H, S, V);
 	CRGB color = CRGB(H, S, V);
 	int i = 0;
@@ -102,8 +102,8 @@ void update_blade(Blade *b) {
 		}
 		else {
 			b->blade_leds[i] = CRGB::Black;
-			//Can I break here for efficiency?
-			//break;
+			//Can I break here for efficiency?  I think yes
+			break;
 		}
 	}
 }
@@ -138,13 +138,13 @@ void update_blade_array(int brightness, int saturation, int hue) {
 	for (int i = 0; i < blade_count; i++) {
 		//Change the blade color
 		if (brightness > 0) {
-			blade_array[i].blade_red = brightness;
+			blade_array[i].blade_blue = brightness;
 		}
 		if (saturation > 0) {
-			blade_array[i].blade_blue = saturation;
+			blade_array[i].blade_green = saturation;
 		}
 		if (hue > 0) {
-			blade_array[i].blade_green = hue;
+			blade_array[i].blade_red = hue;
 		}
 		//Update the blade color
 		update_blade(&blade_array[i]);
@@ -155,10 +155,10 @@ void update_blade_array(int brightness, int hue) {
 	for (int i = 0; i < blade_count; i++) {
 		//Change the blade color
 		if (brightness > 0) {
-			blade_array[i].blade_red = brightness;
+			blade_array[i].blade_blue = brightness;
 		}
 		if (hue > 0) {
-			blade_array[i].blade_green = hue;
+			blade_array[i].blade_red = hue;
 		}
 		//Update the blade color
 		update_blade(&blade_array[i]);
