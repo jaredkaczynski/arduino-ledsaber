@@ -74,7 +74,7 @@ Blade blade_array[blade_count];
 //#define BLADE_FIRE
 //How far out on a blade you want it to be lit
 //I doubt you want this lower than 100%
-#define MAX_BLADE_PERCENTAGE 100 //100% is the whole blade
+#define MAX_BLADE_PERCENTAGE 1000 //100% is the whole blade
 //Brightness max, with modulation during swing you want to give it a big range to change brightness
 #ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 int default_global_brightness = 225;
@@ -123,8 +123,9 @@ DEFINE_GRADIENT_PALETTE(heatmap_gp) {
 };
 
 DEFINE_GRADIENT_PALETTE(heatmap_luke) {
-	0, 0, 204, 255,   //red
-		255, 0, 255, 255 // very dark red
+	0, 16, 194, 239,   //blue
+		128,0,204,255,
+		255, 59, 236, 255 // lighter blue
 };
 
 void setup() {
@@ -138,6 +139,7 @@ void setup() {
 	blade_array[0].blade_led_count = 30;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
+	//Technically unneeded
 	blade_array[0].blade_red = 0;
 	blade_array[0].blade_green = 205;
 	blade_array[0].blade_blue = 255;
@@ -155,8 +157,9 @@ void setup() {
 	set_blade_brightness(default_global_brightness);
 	LEDS.setDither(0);
 	blade_out_percentage = 0;
-	update_blade_array();
+	//Turn LEDs off on startup
 	LEDS.clear();
+	LEDS.show();
 	// start i2c
 	Wire.begin();
 	MPU6050_start();
@@ -365,7 +368,7 @@ void loop() {
 			blade_mode = BLADE_MODE_ON;
 			rotation_history = 100.0;
 			inactivity_counter = INACTIVITY_TIMEOUT;
-			extinguish();
+			//extinguish();
 		}
 		break;
 	case BLADE_MODE_EXTINGUISH:
@@ -382,7 +385,7 @@ void loop() {
 		}
 		else {
 			blade_mode = BLADE_MODE_OFF;
-			ignite();
+			//ignite();
 		}
 		break;
 		LEDS.show();

@@ -11,7 +11,6 @@ int   preset_speed[] =      {   3,   2,   2,   3,   2,   3,   2,    1 };
 //Import the variables to use this file as the EEPROM save file
 extern byte button_state;
 extern int button_mode;
-extern double extend_speed;
 
 // audio state
 byte global_volume = 240;
@@ -70,7 +69,7 @@ void eeprom_restore() {
     //blade_hue = EEPROM.read(8); 
     //blade_saturation = EEPROM.read(9);
     //blade_brightness = EEPROM.read(10); 
-    extend_speed = EEPROM.read(11);
+    //extend_speed = EEPROM.read(11);
   }
 }
 
@@ -88,7 +87,7 @@ void eeprom_save() {
 	//EEPROM.update(8,blade_hue);
 	//EEPROM.update(9,blade_saturation);
 	//EEPROM.update(10,blade_brightness);
-	EEPROM.update(11, extend_speed);
+	//EEPROM.update(11, extend_speed);
 	// commit with the valid token
 	EEPROM.update(0, 42);
 	EEPROM.update(1, !42);
