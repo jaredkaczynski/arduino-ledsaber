@@ -1,5 +1,6 @@
 //#define FASTLED_FORCE_SOFTWARE_SPI 1
 
+#include <OneButton.h>
 #include <EEPROMex.h>
 #include <Wire.h>
 #include <avr/wdt.h>
@@ -50,21 +51,12 @@ Blade blade_array[blade_count];
 // enable rotaty encoder switch control
 //#define CONTROL_ROTARY
 #define CONTROL_BUTTON
-// rotary control direction pins
-#define ROTARY_D1_PIN    15
-#define ROTARY_D2_PIN    16
-#define ROTARY_GND1_PIN  14
-// rotary control switch pins
-#define ROTARY_SW_PIN    8
-#define ROTARY_GND2_PIN  6
 
 //Switching over to a 2 button setup instead of the rotary encoder for 1, simplicity, 2 appearance
-#define BUTTON_B1_PIN 2
-#define BUTTON_B2_PIN 3
+OneButton button1(A2, true);
+OneButton button2(A3, true);
 
-// flip these if your knob goes backwards from what you expect
-#define ROTARY_DIR_A    -1
-#define ROTARY_DIR_B    +1
+
 
 
 //Blade Effect Enable/disable
@@ -84,8 +76,26 @@ int default_global_brightness = 225;
 int default_global_brightness = 255;
 #endif // BLADE_BRIGHTNESS_SWING_MODULATION
 
+#ifdef CONTROL_ROTARY
+// rotary control direction pins
+#define ROTARY_D1_PIN    15
+#define ROTARY_D2_PIN    16
+#define ROTARY_GND1_PIN  14
+// rotary control switch pins
+#define ROTARY_SW_PIN    8
+#define ROTARY_GND2_PIN  6
+
+// flip these if your knob goes backwards from what you expect
+#define ROTARY_DIR_A    -1
+#define ROTARY_DIR_B    +1
 
 #include "rotary.h"
+#endif // CONTROL_ROTARY
+#ifdef CONTROL_BUTTON
+#include "button.h"
+#endif // CONTROL_BUTTON
+
+
 
 int ctrl_counter = 0;
 
@@ -171,11 +181,13 @@ void setup() {
 	// restore our saved state
 	eeprom_restore();
 	// setup controls, either button or rotary switch
-#ifdef ROTARY
+#ifdef CONTROL_ROTARY
 	start_inputs_rotary();
-#else
-	start_inputs_button();
 #endif // ROTARY
+#ifdef CONTROL_BUTTON
+	setup_buttons();
+#endif // CONTROL_BUTTON
+
 
 	// start sound system
 	//snd_init();
@@ -226,7 +238,9 @@ void loop() {
 	}
 //Use 2 button control
 #ifdef CONTROL_BUTTON
-
+	//check button status
+	button1.tick();
+	button2.tick();
 #endif // CONTROL_BUTTON
 
 #ifdef CONTROL_ROTARY
