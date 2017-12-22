@@ -186,8 +186,8 @@ void check_rotary() {
 }
 
 void start_inputs_button() {
-	pinMode(BUTTON_B1_PIN, INPUT_PULLUP);
-	pinMode(BUTTON_B2_PIN, INPUT_PULLUP);
+	//pinMode(BUTTON_B1_PIN, INPUT_PULLUP);
+	//pinMode(BUTTON_B2_PIN, INPUT_PULLUP);
 
 }
 

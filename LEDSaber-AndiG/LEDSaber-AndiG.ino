@@ -48,7 +48,8 @@
 Blade blade_array[blade_count];
 
 // enable rotaty encoder switch control
-#define CONTROL_ROTARY
+//#define CONTROL_ROTARY
+#define CONTROL_BUTTON
 // rotary control direction pins
 #define ROTARY_D1_PIN    15
 #define ROTARY_D2_PIN    16
@@ -180,7 +181,7 @@ void setup() {
 	//snd_init();
 #ifdef DEBUG
 	Serial.println("Running");
-	ignite();
+	//ignite();
 #endif
 }
 
@@ -223,6 +224,10 @@ void loop() {
 		velocity_factor = sqrt(abs(velocity_offset - av));
 		if (velocity_factor>1.0) velocity_factor = 1.0;
 	}
+//Use 2 button control
+#ifdef CONTROL_BUTTON
+
+#endif // CONTROL_BUTTON
 
 #ifdef CONTROL_ROTARY
 	// read inputs
@@ -276,7 +281,7 @@ void loop() {
 
 
 #ifdef DEBUG
-	rotation_history = random(1, 120);
+	rotation_history = random(1, 90);
 	velocity_factor = (random(1, 100) / 100.0);
 #endif
 
@@ -361,7 +366,7 @@ void loop() {
 	case BLADE_MODE_IGNITE:
 		if (blade_out_percentage < MAX_BLADE_PERCENTAGE) {
 			/*Serial.println(extend_speed);*/
-			blade_out_percentage += 1;
+			blade_out_percentage += extend_speed;
 			//Serial.println(blade_out_percentage);
 			if (blade_out_percentage > MAX_BLADE_PERCENTAGE) blade_out_percentage = MAX_BLADE_PERCENTAGE;
 			update_blade_array();
@@ -382,7 +387,7 @@ void loop() {
 		break;
 	case BLADE_MODE_EXTINGUISH:
 		if (blade_out_percentage > 0) {
-			blade_out_percentage-=1; update_blade_array();
+			blade_out_percentage-=extend_speed; update_blade_array();
 			// limit the volume on the way down
 			int v = (blade_out_percentage * global_volume) / MAX_BLADE_PERCENTAGE;
 			snd_buzz_volume = min(v, snd_buzz_volume);
