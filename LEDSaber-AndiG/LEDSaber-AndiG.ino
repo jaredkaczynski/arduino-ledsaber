@@ -1,7 +1,7 @@
 //#define FASTLED_FORCE_SOFTWARE_SPI 1
 
 #include <OneButton.h>
-#include <EEPROMex.h>
+#include <EEPROM.h>
 #include <Wire.h>
 //#include <avr/wdt.h>
 #include <FastLED.h>
@@ -13,9 +13,6 @@
 #include "blades.h"
 
 #define DEBUG
-
-// define our LED blade properties
-#define BLADE_LEDS_PIN    A2
 
 // default colour customization
 //#define BLADE_BRIGHTNESS  127
@@ -53,8 +50,8 @@ Blade blade_array[blade_count];
 #define CONTROL_BUTTON
 
 //Switching over to a 2 button setup instead of the rotary encoder for 1, simplicity, 2 appearance
-OneButton button1(A2, true);
-OneButton button2(A3, true);
+OneButton button1(D2, true);
+OneButton button2(D3, true);
 
 
 
@@ -151,11 +148,11 @@ void init_leds() {
 	blade_array[0].blade_red = 0;
 	blade_array[0].blade_green = 205;
 	blade_array[0].blade_blue = 255;
-	blade_array[0].pin = 11;
+	blade_array[0].pin = D5;
 	blade_array[0].myPal = heatmap_luke;
 
 	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
-	LEDS.addLeds<WS2812, 11, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
+	LEDS.addLeds<WS2812, D5, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 
 #ifdef STATUS_LEDS
 	// setup the status strip
@@ -182,7 +179,7 @@ void setup() {
 	Wire.begin();
 	MPU6050_start();
 	// restore our saved state
-	eeprom_restore();
+	//eeprom_restore();
 	// setup controls, either button or rotary switch
 #ifdef CONTROL_ROTARY
 	start_inputs_rotary();

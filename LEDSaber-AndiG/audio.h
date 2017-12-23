@@ -112,7 +112,7 @@ inline int sound_ring_sample(int ago) {
 int snd_index_1 = 0;
 int snd_index_2 = 0;
 int snd_index_3 = 0;
-
+#ifndef DEBUG
 ISR(TIMER1_COMPA_vect) {
   //digitalWrite(8,HIGH);
   // combine the wave and global volume into channel volumes
@@ -138,7 +138,7 @@ ISR(TIMER1_COMPA_vect) {
   */
   unsigned int sample = 0x8000 + s1 + s2 + s3;
 
-#ifndef DEBUG
+
   // update the PWM value with the top few bits
 #ifdef AUDIO_PWM9
   OCR4B = (sample >> 7) & 0x1ff;
@@ -155,7 +155,7 @@ ISR(TIMER1_COMPA_vect) {
 #ifdef AUDIO_PWM4
   OCR4B = (sample >> 12) & 0x0f;
 #endif
-#endif // !DEBUG
+
   /*
   // store the sample in the ring
   sound_ring[sound_ring_index] = sample >> 8;
@@ -164,6 +164,7 @@ ISR(TIMER1_COMPA_vect) {
   // done
   //digitalWrite(8,LOW);
 }
+#endif // !DEBUG
 
 #ifndef DEBUG
 

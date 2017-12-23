@@ -176,7 +176,7 @@ void extinguish() {
 	if (blade_mode == BLADE_MODE_ON) {
 		blade_mode = BLADE_MODE_EXTINGUISH;
 		// since this was done gracefully, store the current blade settings for next time
-		eeprom_save();
+		//eeprom_save();
 	}
 }
 

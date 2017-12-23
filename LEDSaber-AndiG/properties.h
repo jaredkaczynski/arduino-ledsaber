@@ -50,48 +50,48 @@ byte get_property(int * v) {
   return (r >> 5) & 255;
 }
 */
-
-void eeprom_restore() {
-  // check the first two bytes for our magic value, indicating the eeprom isn't empty
-  bool valid = (EEPROM.read(0) == 42) && (EEPROM.read(1) == !42);
-  // if valid, load the properties
-  if(valid) {
-    button_mode = EEPROM.read(2);
-    // audio state
-    global_volume = EEPROM.read(3);
-    snd_buzz_freq = EEPROM.read(4); 
-    snd_hum1_freq = EEPROM.read(5); 
-    snd_hum2_freq = EEPROM.read(6); 
-    snd_hum2_doppler = EEPROM.read(7) - 128;
-    snd_echo_decay = EEPROM.read(12); 
-    // blade color
-	//Unsave colors, will add back later if necessary
-    //blade_hue = EEPROM.read(8); 
-    //blade_saturation = EEPROM.read(9);
-    //blade_brightness = EEPROM.read(10); 
-    //extend_speed = EEPROM.read(11);
-  }
-}
-
-void eeprom_save() {
-	// save the properties
-	EEPROM.update(2, button_mode);
-	// sound properties
-	EEPROM.update(3, global_volume);
-	EEPROM.update(4, snd_buzz_freq);
-	EEPROM.update(5, snd_hum1_freq);
-	EEPROM.update(6, snd_hum2_freq);
-	EEPROM.update(7, snd_hum2_doppler);
-	EEPROM.update(12, snd_echo_decay);
-	// blade color
-	//EEPROM.update(8,blade_hue);
-	//EEPROM.update(9,blade_saturation);
-	//EEPROM.update(10,blade_brightness);
-	//EEPROM.update(11, extend_speed);
-	// commit with the valid token
-	EEPROM.update(0, 42);
-	EEPROM.update(1, !42);
-}
+//
+//void eeprom_restore() {
+//  // check the first two bytes for our magic value, indicating the eeprom isn't empty
+//  bool valid = (EEPROM.read(0) == 42) && (EEPROM.read(1) == !42);
+//  // if valid, load the properties
+//  if(valid) {
+//    button_mode = EEPROM.read(2);
+//    // audio state
+//    global_volume = EEPROM.read(3);
+//    snd_buzz_freq = EEPROM.read(4); 
+//    snd_hum1_freq = EEPROM.read(5); 
+//    snd_hum2_freq = EEPROM.read(6); 
+//    snd_hum2_doppler = EEPROM.read(7) - 128;
+//    snd_echo_decay = EEPROM.read(12); 
+//    // blade color
+//	//Unsave colors, will add back later if necessary
+//    //blade_hue = EEPROM.read(8); 
+//    //blade_saturation = EEPROM.read(9);
+//    //blade_brightness = EEPROM.read(10); 
+//    //extend_speed = EEPROM.read(11);
+//  }
+//}
+//
+//void eeprom_save() {
+//	// save the properties
+//	EEPROM.update(2, button_mode);
+//	// sound properties
+//	EEPROM.update(3, global_volume);
+//	EEPROM.update(4, snd_buzz_freq);
+//	EEPROM.update(5, snd_hum1_freq);
+//	EEPROM.update(6, snd_hum2_freq);
+//	EEPROM.update(7, snd_hum2_doppler);
+//	EEPROM.update(12, snd_echo_decay);
+//	// blade color
+//	//EEPROM.update(8,blade_hue);
+//	//EEPROM.update(9,blade_saturation);
+//	//EEPROM.update(10,blade_brightness);
+//	//EEPROM.update(11, extend_speed);
+//	// commit with the valid token
+//	EEPROM.update(0, 42);
+//	EEPROM.update(1, !42);
+//}
 
 
 
