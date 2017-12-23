@@ -23,6 +23,8 @@ void button1_held() {
 }
 
 //Handle mode change click of button 2
+//Realistically I don't need this, it's a bunch of work for no reason
+//It's not likely you need to change anything other than MAYBE blade color in the field
 
 void button2_click() {
 	button_mode += 1;

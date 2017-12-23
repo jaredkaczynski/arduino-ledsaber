@@ -7,7 +7,7 @@
 
 // Total LED power limit, of all RGB LEDS together.
 // If your strips are back-to-back in a tube without serious extra heatsinking, don't exceed 40% sustained power
-#define BLADE_POWER_LIMIT     0.90f
+#define BLADE_POWER_LIMIT     0.20f
 // Seriously. I mean it. I heat-destroyed a blade at 100% so you don't have to. 
 // It will run for a few minutes and then neopixels will start dying.
 // we can also define limits for the individual channels, since that last 10% of brightness usually makes more heat than light (especially for red)
@@ -23,7 +23,7 @@ int blade_mode = BLADE_MODE_OFF;
 //Switch to percentage
 int blade_out_percentage = 0;
 //This doesn't work for some reason, thanks weird code
-int extend_speed = 1;
+int extend_speed = 11;
 
 int blade_preset = 0;
 //Number of blades
