@@ -70,6 +70,7 @@ OneButton button2(A3, true);
 #define MAX_BLADE_PERCENTAGE 1000 //100% is the whole blade
 //Brightness max, with modulation during swing you want to give it a big range to change brightness
 #ifdef BLADE_BRIGHTNESS_SWING_MODULATION
+//Default FASTLED max brightness, 0-255
 int default_global_brightness = 225;
 //Otherwise just let brightness be maxed out, approximately 72/255 or % based on config
 #else
@@ -139,9 +140,11 @@ DEFINE_GRADIENT_PALETTE(heatmap_luke) {
 		255, 59, 236, 255 // lighter blue
 };
 
+double count_up = 0;
+
 void init_leds() {
 	// setup the blade strips
-	blade_array[0].blade_led_count = 30;
+	blade_array[0].blade_led_count = 60;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
 	//Technically unneeded
@@ -198,6 +201,8 @@ void setup() {
 }
 
 void loop() {
+	unsigned int time = 0;
+	time = micros();
 	int i, n, delta;
 	float av, rv;
 	// the program is alive
@@ -240,19 +245,17 @@ void loop() {
 #ifdef CONTROL_BUTTON
 	//check button status
 	button1.tick();
-	button2.tick();
+	//Disabliing button2 for now as it's not that useful
+	//button2.tick();
 #endif // CONTROL_BUTTON
-
 #ifdef CONTROL_ROTARY
 	// read inputs
 	check_button();
 	check_rotary();
-#else
-	// check knob
-	n = analogRead(A0);
-	add_entropy(n, 0x03); // add two bits of entropy
-#endif
-						  // use some entropy to modulate the sound volume
+#endif // CONTROL_BUTTON
+
+
+	// use some entropy to modulate the sound volume
 	snd_buzz_speed = snd_buzz_freq + (entropy & 3);
 	snd_hum1_speed = snd_hum1_freq;
 
@@ -295,8 +298,12 @@ void loop() {
 
 
 #ifdef DEBUG
-	rotation_history = random(1, 90);
-	velocity_factor = (random(1, 100) / 100.0);
+	rotation_history = count_up;
+	velocity_factor = (count_up / 100.0);
+	count_up+=.1;
+	if (count_up > 100) {
+		count_up = 0;
+	}
 #endif
 
 #ifdef CONTROL_ROTARY
@@ -350,15 +357,17 @@ void loop() {
 		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
 		//velocity_factor or av range is 0-1.0
 		//Sets blade brightness according to swing speed, modulating a range of 60,30 up, 30 down
+		if ((ctrl_counter & 1) == 1) { //Run this code on the cycle of the MPU6050 to keep consistent loop times
 #ifdef BLADE_BRIGHTNESS_SWING_MODULATION
-		set_blade_brightness(default_global_brightness + (60 * av) - 30);
+			set_blade_brightness(default_global_brightness + (60 * av) - 30);
 #endif
 #ifdef BLADE_NOISE
-		update_blade_array_noise();
+			update_blade_array_noise();
 #elif defined(BLADE_FIRE)
-		update_blade_array_fire();
+			update_blade_array_fire();
 #else
 #endif
+		}
 
 		// check for inactivity
 		if ((velocity_factor < 0.4) && (rotation_history < 10.0)) {
@@ -416,7 +425,6 @@ void loop() {
 			//ignite();
 		}
 		break;
-		LEDS.show();
 #ifdef VOLTAGE_SHUTDOWN
 	case BLADE_MODE_UNDERVOLT:
 		// retract
@@ -444,5 +452,10 @@ void loop() {
 #endif
 	}
 	// update the LEDS now
-	LEDS.show();
+	if ((ctrl_counter & 1) == 0) { //Run this code on the off cycle of the MPU6050 to keep consistent loop times
+		LEDS.show();
+	}
+	time = micros() - time;
+
+	Serial.println(time, DEC);
 	}

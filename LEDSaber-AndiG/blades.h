@@ -7,7 +7,7 @@
 
 // Total LED power limit, of all RGB LEDS together.
 // If your strips are back-to-back in a tube without serious extra heatsinking, don't exceed 40% sustained power
-#define BLADE_POWER_LIMIT     0.20f
+#define BLADE_POWER_LIMIT     0.07f
 // Seriously. I mean it. I heat-destroyed a blade at 100% so you don't have to. 
 // It will run for a few minutes and then neopixels will start dying.
 // we can also define limits for the individual channels, since that last 10% of brightness usually makes more heat than light (especially for red)
@@ -185,6 +185,8 @@ extern uint16_t dist;
 // Wouldn't recommend changing this on the fly, or the animation will be really blocky
 uint16_t scale = 5;
 
+
+//Runtime 1.2ms approximately
 //Noise Effect, AKA Kylo Ren presumably,possibly all blades
 void fillnoise8(Blade b) {
 	for (int i = 0; i < b.blade_led_count; i++) {                                      // Just ONE loop to fill up the LED array as all of the pixels change.
@@ -192,7 +194,6 @@ void fillnoise8(Blade b) {
 		b.blade_leds[i] = ColorFromPalette(b.myPal, index, 255, LINEARBLEND);   // With that value, look up the 8 bit colour palette value and assign it to the current LED.
 	}
 	dist += beatsin8(10, 1, 2);                                               // Moving along the distance (that random number we started out with). Vary it a bit with a sine wave.
-																			  // In some sketches, I've used millis() instead of an incremented counter. Works a treat.
 }
 
 // Fire2012 by Mark Kriegsman, July 2012
