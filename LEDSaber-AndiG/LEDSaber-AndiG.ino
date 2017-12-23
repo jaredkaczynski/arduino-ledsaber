@@ -3,7 +3,7 @@
 #include <OneButton.h>
 #include <EEPROMex.h>
 #include <Wire.h>
-#include <avr/wdt.h>
+//#include <avr/wdt.h>
 #include <FastLED.h>
 
 // local extentions
@@ -137,14 +137,14 @@ DEFINE_GRADIENT_PALETTE(heatmap_gp) {
 DEFINE_GRADIENT_PALETTE(heatmap_luke) {
 	0, 16, 194, 239,   //blue
 		128,0,204,255,
-		255, 59, 236, 255 // lighter blue
+		255, 85, 250, 255 // lighter blue
 };
 
 double count_up = 0;
 
 void init_leds() {
 	// setup the blade strips
-	blade_array[0].blade_led_count = 60;
+	blade_array[0].blade_led_count = 66;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
 	//Technically unneeded
@@ -357,7 +357,7 @@ void loop() {
 		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
 		//velocity_factor or av range is 0-1.0
 		//Sets blade brightness according to swing speed, modulating a range of 60,30 up, 30 down
-		if ((ctrl_counter & 1) == 1) { //Run this code on the cycle of the MPU6050 to keep consistent loop times
+		//if ((ctrl_counter & 1) == 1) { //Run this code on the cycle of the MPU6050 to keep consistent loop times
 #ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 			set_blade_brightness(default_global_brightness + (60 * av) - 30);
 #endif
@@ -367,7 +367,7 @@ void loop() {
 			update_blade_array_fire();
 #else
 #endif
-		}
+		//}
 
 		// check for inactivity
 		if ((velocity_factor < 0.4) && (rotation_history < 10.0)) {
@@ -458,4 +458,5 @@ void loop() {
 	time = micros() - time;
 
 	Serial.println(time, DEC);
+	Serial.println(ctrl_counter & 1);
 	}
