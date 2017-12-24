@@ -1,6 +1,5 @@
 //#define FASTLED_FORCE_SOFTWARE_SPI 1
 #define FASTLED_ESP8266_DMA
-#define FASTLED_ALLOW_INTERRUPTS 0
 
 #include <OneButton.h>
 #include <EEPROM.h>
@@ -448,11 +447,9 @@ void loop() {
 #endif
 		break;
 #endif
-	}
-	// update the LEDS now
-	if ((ctrl_counter & 1) == 0) { //Run this code on the off cycle of the MPU6050 to keep consistent loop times
-	LEDS.show();
-	}
+	}	
+	
+
 	time = micros() - time;
 
 	//Serial.println(time, DEC);
