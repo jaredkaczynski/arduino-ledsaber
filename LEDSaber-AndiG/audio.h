@@ -1,3 +1,5 @@
+#include "i2s.h"
+
 #define DEBUG
 //#define AUDIO_PWM9
 #define AUDIO_PWM8
@@ -80,6 +82,29 @@ byte hum2_wave[HUM2_WAVE_LENGTH] = {
   0x8D
 };
 
+//Array with 32-bit values which have one bit more set to '1' in every consecutive array index value
+const uint32_t ICACHE_RODATA_ATTR _i2s_to_pwm[32] = {
+	0x00000010, 0x00000410, 0x00400410, 0x00400C10, 0x00500C10, 0x00D00C10, 0x20D00C10, 0x21D00C10, 0x21D80C10, 0xA1D80C10,
+	0xA1D80D10, 0xA1D80D30, 0xA1DC0D30, 0xA1DC8D30, 0xB1DC8D30, 0xB9DC8D30, 0xB9FC8D30, 0xBDFC8D30, 0xBDFE8D30, 0xBDFE8D32,
+	0xBDFE8D33, 0xBDFECD33, 0xFDFECD33, 0xFDFECD73, 0xFDFEDD73, 0xFFFEDD73, 0xFFFEDD7B, 0xFFFEFD7B, 0xFFFFFD7B, 0xFFFFFDFB,
+	0xFFFFFFFB, 0xFFFFFFFF
+};
+
+//static int sampToI2sPwm(short s) {
+//	//Okay, when this is enabled it means a speaker is connected *directly* to the data output. Instead of
+//	//having a nice PCM signal, we fake a PWM signal here.
+//	static int err = 0;
+//	int samp = s;
+//	samp = (samp + 32768);	//to unsigned
+//	samp -= err;			//Add the error we made when rounding the previous sample (error diffusion)
+//							//clip value
+//	if (samp>65535) samp = 65535;
+//	if (samp<0) samp = 0;
+//	//send pwm value for sample value
+//	samp = fakePwm[samp >> 11];
+//	err = (samp & 0x7ff);	//Save rounding error.
+//	return samp;
+//}
 
 byte sound_sample(int * index, byte * wave, int wave_speed, byte wave_length) {
   // interpolate next sample
@@ -112,6 +137,22 @@ inline int sound_ring_sample(int ago) {
 }
 */
 
+static void i2s_write_pwm(int16_t s) {
+	//Instead of having a nice PCM signal, we fake a PWM signal here.
+	static int err = 0;
+	int samp = s;
+	samp = (samp + 32768);  //to unsigned
+	samp -= err;      //Add the error we made when rounding the previous sample (error diffusion)
+					  //clip value
+	if (samp>65535) samp = 65535;
+	if (samp<0) samp = 0;
+	samp = _i2s_to_pwm[samp >> 11];//send pwm value for sample value
+	err = (samp & 0x7ff); //Save rounding error.
+	i2s_write_sample(samp);
+}
+
+
+
 // sound generators
 int snd_index_1 = 0;
 int snd_index_2 = 0;
@@ -119,11 +160,11 @@ int snd_index_3 = 0;
 
 void timer0_ISR() {
 	count_up2++;
-	if (count_up2 > 100) {
+	if (count_up2 > 200) {
 		count_up2 = 0;
 		LEDS.show();
+		Serial.println("updating leds");
 		next = (ESP.getCycleCount() + 100);
-		//Serial.println("updating leds");
 	}
 	else {
 		//digitalWrite(8,HIGH);
@@ -136,40 +177,9 @@ void timer0_ISR() {
 		int s2 = (sound_sample(&snd_index_2, hum1_wave, snd_hum1_speed, HUM1_WAVE_LENGTH) - 128) * v2;
 		int s3 = (sound_sample(&snd_index_3, hum2_wave, snd_hum2_speed, HUM2_WAVE_LENGTH) - 128) * v3;
 		// combine the samples together
-		//long n = 0; n += s1; n += s2; n += s3;
-		// clip
-		/*
-		unsigned int sample;
-		if(n >= 0x8000) {
-		sample = 0xFFFF;
-		} else if(n <= -0x8000) {
-		sample = 0x0000;
-		} else {
-		sample = 0x8000 + n;
-		}
-		*/
 		unsigned int sample = 0x8000 + s1 + s2 + s3;
-
-		//Serial.println((sample >> 9) & 0x7f);
-		// update the PWM value with the top few bits
-		//analogWrite(D7,(sample >> 9) & 0x7f);
-		//analogWrite()
-	//#ifdef AUDIO_PWM9
-	//	OCR4B = (sample >> 7) & 0x1ff;
-	//#endif
-	//#ifdef AUDIO_PWM8
-	//	OCR4B = (sample >> 8) & 0xff;
-	//#endif
-	//#ifdef AUDIO_PWM7
-	//	OCR4B = (sample >> 9) & 0x7f;
-	//#endif
-	//#ifdef AUDIO_PWM6
-	//	OCR4B = (sample >> 10) & 0x3f;
-	//#endif
-	//#ifdef AUDIO_PWM4
-	//	OCR4B = (sample >> 12) & 0x0f;
-	//#endif
-		next = (next + 10000);
+		i2s_write_pwm(sample);
+		next = (ESP.getCycleCount() + 9500);
 	}
 	timer0_write(next);
 }
@@ -177,7 +187,8 @@ void timer0_ISR() {
 
 
 void snd_init() {
-	pinMode(D7, OUTPUT);
+	i2s_begin();
+	i2s_set_rate(96000);
 	noInterrupts();
 	timer0_isr_init();
 	timer0_attachInterrupt(timer0_ISR);

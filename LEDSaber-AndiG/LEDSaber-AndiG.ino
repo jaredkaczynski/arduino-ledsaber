@@ -1,5 +1,5 @@
 //#define FASTLED_FORCE_SOFTWARE_SPI 1
-#define FASTLED_ESP8266_DMA
+//#define FASTLED_ESP8266_DMA
 
 #include <OneButton.h>
 #include <EEPROM.h>
@@ -147,11 +147,11 @@ void init_leds() {
 	blade_array[0].blade_red = 0;
 	blade_array[0].blade_green = 205;
 	blade_array[0].blade_blue = 255;
-	blade_array[0].pin = RX;
+	blade_array[0].pin = D6;
 	blade_array[0].myPal = heatmap_luke;
 
 	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
-	LEDS.addLeds<WS2812, RX, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
+	LEDS.addLeds<WS2812, D6, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 
 #ifdef STATUS_LEDS
 	// setup the status strip
@@ -293,14 +293,14 @@ void loop() {
 #endif
 
 
-#ifdef DEBUG
-	rotation_history = count_up;
-	velocity_factor = (count_up / 100.0);
-	count_up+=.1;
-	if (count_up > 100) {
-		count_up = 0;
-	}
-#endif
+//#ifdef DEBUG
+//	rotation_history = count_up;
+//	velocity_factor = (count_up / 100.0);
+//	count_up+=.1;
+//	if (count_up > 100) {
+//		count_up = 0;
+//	}
+//#endif
 
 #ifdef CONTROL_ROTARY
 	// check the controls
@@ -371,9 +371,9 @@ void loop() {
 			if (inactivity_counter == 0) {
 				extinguish();
 			}
-			else {
+			/*else {
 				inactivity_counter--;
-			}
+			}*/
 		}
 		else {
 			// active
