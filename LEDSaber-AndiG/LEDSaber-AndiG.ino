@@ -63,7 +63,7 @@ OneButton button2(D3, true);
 //#define BLADE_FIRE
 //How far out on a blade you want it to be lit
 //I doubt you want this lower than 100%
-#define MAX_BLADE_PERCENTAGE 1000 //100% is the whole blade
+#define MAX_BLADE_PERCENTAGE 1000 //100% is the whole blade, set it higher to allow slower exten
 //Brightness max, with modulation during swing you want to give it a big range to change brightness
 #ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 //Default FASTLED max brightness, 0-255
@@ -140,7 +140,7 @@ double count_up = 0;
 
 void init_leds() {
 	// setup the blade strips
-	blade_array[0].blade_led_count = 144;
+	blade_array[0].blade_led_count = 30;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
 	//Technically unneeded
@@ -193,7 +193,6 @@ void setup() {
 #ifdef DEBUG
 	Serial.println("Running");
 	ignite();
-	Serial.println("Igniting");
 #endif
 }
 
@@ -354,7 +353,7 @@ void loop() {
 		//update_blade_array_brightness((int)(rotation_history / snd_hum2_doppler));
 		//velocity_factor or av range is 0-1.0
 		//Sets blade brightness according to swing speed, modulating a range of 60,30 up, 30 down
-		//if ((ctrl_counter & 1) == 1) { //Run this code on the cycle of the MPU6050 to keep consistent loop times
+		if ((ctrl_counter & 1) == 1) {//it's too fast now so i'm running it half time
 #ifdef BLADE_BRIGHTNESS_SWING_MODULATION
 			set_blade_brightness(default_global_brightness + (60 * av) - 30);
 #endif
@@ -364,7 +363,7 @@ void loop() {
 			update_blade_array_fire();
 #else
 #endif
-		//}
+		}
 
 		// check for inactivity
 		if ((velocity_factor < 0.4) && (rotation_history < 10.0)) {
@@ -449,8 +448,7 @@ void loop() {
 #endif
 	}	
 	
-
+	
 	time = micros() - time;
-
 	//Serial.println(time, DEC);
 	}

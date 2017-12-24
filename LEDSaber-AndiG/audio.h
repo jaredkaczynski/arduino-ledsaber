@@ -122,6 +122,7 @@ void timer0_ISR() {
 	if (count_up2 > 100) {
 		count_up2 = 0;
 		LEDS.show();
+		next = (ESP.getCycleCount() + 100);
 		//Serial.println("updating leds");
 	}
 	else {
@@ -151,7 +152,8 @@ void timer0_ISR() {
 
 		//Serial.println((sample >> 9) & 0x7f);
 		// update the PWM value with the top few bits
-		//analogWriteFreq((sample >> 9) & 0x7f);
+		//analogWrite(D7,(sample >> 9) & 0x7f);
+		//analogWrite()
 	//#ifdef AUDIO_PWM9
 	//	OCR4B = (sample >> 7) & 0x1ff;
 	//#endif
@@ -167,8 +169,8 @@ void timer0_ISR() {
 	//#ifdef AUDIO_PWM4
 	//	OCR4B = (sample >> 12) & 0x0f;
 	//#endif
+		next = (next + 10000);
 	}
-	next = (ESP.getCycleCount() + 10000);
 	timer0_write(next);
 }
 
@@ -180,7 +182,7 @@ void snd_init() {
 	timer0_isr_init();
 	timer0_attachInterrupt(timer0_ISR);
 	//80000000/x=8000 x=10000 for 8000 interrupts per second
-	next = (ESP.getCycleCount() + 10000);
+	next = (ESP.getCycleCount() + 5000);
 	timer0_write(next);
 	//timer1_isr_init();
 	//timer1_attachInterrupt(servoISR);
