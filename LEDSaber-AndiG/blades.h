@@ -23,7 +23,7 @@ int blade_mode = BLADE_MODE_OFF;
 //Switch to percentage
 int blade_out_percentage = 0;
 //This doesn't work for some reason, thanks weird code
-int extend_speed = 11;
+int extend_speed = 2;
 
 int blade_preset = 0;
 //Number of blades

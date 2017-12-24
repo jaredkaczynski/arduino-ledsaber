@@ -116,6 +116,7 @@ int snd_index_2 = 0;
 int snd_index_3 = 0;
 
 void interrupt_routine() {
+	timer0_write(next += 150000);
 	//digitalWrite(8,HIGH);
 	// combine the wave and global volume into channel volumes
 	unsigned int v1 = snd_buzz_volume; //v1 *= global_volume; v1 = v1 >> 8;
@@ -140,9 +141,9 @@ void interrupt_routine() {
 	*/
 	unsigned int sample = 0x8000 + s1 + s2 + s3;
 
-
+	//Serial.println((sample >> 9) & 0x7f);
 	// update the PWM value with the top few bits
-	analogWriteFreq((sample >> 9) & 0x7f);
+	//analogWriteFreq((sample >> 9) & 0x7f);
 //#ifdef AUDIO_PWM9
 //	OCR4B = (sample >> 7) & 0x1ff;
 //#endif
@@ -158,56 +159,13 @@ void interrupt_routine() {
 //#ifdef AUDIO_PWM4
 //	OCR4B = (sample >> 12) & 0x0f;
 //#endif
+	Serial.println("Interupt");
 }
-#ifndef DEBUG
-ISR(TIMER1_COMPA_vect) {
-  //digitalWrite(8,HIGH);
-  // combine the wave and global volume into channel volumes
-  unsigned int v1 = snd_buzz_volume; //v1 *= global_volume; v1 = v1 >> 8;
-  unsigned int v2 = snd_hum1_volume; //v2 *= global_volume; v2 = v2 >> 8;
-  unsigned int v3 = snd_hum2_volume; //v3 *= global_volume; v3 = v3 >> 8;
-  // sample our primary waveforms, and multiply by their master volumes
-  int s1 = ( sound_sample(&snd_index_1, buzz_wave, snd_buzz_speed, BUZZ_WAVE_LENGTH ) - 128) * v1;
-  int s2 = ( sound_sample(&snd_index_2, hum1_wave, snd_hum1_speed, HUM1_WAVE_LENGTH) - 128) * v2;
-  int s3 = ( sound_sample(&snd_index_3, hum2_wave, snd_hum2_speed, HUM2_WAVE_LENGTH) - 128) * v3;
-  // combine the samples together
-  //long n = 0; n += s1; n += s2; n += s3;
-  // clip
-  /*
-  unsigned int sample;
-  if(n >= 0x8000) {
-    sample = 0xFFFF;
-  } else if(n <= -0x8000) {
-    sample = 0x0000;
-  } else {
-    sample = 0x8000 + n;
-  }
-  */
-  unsigned int sample = 0x8000 + s1 + s2 + s3;
-
-
-  // update the PWM value with the top few bits
-#ifdef AUDIO_PWM9
-  OCR4B = (sample >> 7) & 0x1ff;
-#endif
-#ifdef AUDIO_PWM8
-  OCR4B = (sample >> 8) & 0xff;
-#endif
-#ifdef AUDIO_PWM7
-  OCR4B = (sample >> 9) & 0x7f;
-#endif
-#ifdef AUDIO_PWM6
-  OCR4B = (sample >> 10) & 0x3f;
-#endif
-#ifdef AUDIO_PWM4
-  OCR4B = (sample >> 12) & 0x0f;
-#endif
-}
-#endif // !DEBUG
 
 
 
 void snd_init() {
+	pinMode(D7, OUTPUT);
 	noInterrupts();
 	timer0_isr_init();
 	timer0_attachInterrupt(interrupt_routine);
@@ -219,7 +177,6 @@ void snd_init() {
 	//next = ESP.getCycleCount() + 1000;
 	//timer1_write(next);
 	interrupts();
-
 }
 #ifndef DEBUG
 void snd_init_avr() {

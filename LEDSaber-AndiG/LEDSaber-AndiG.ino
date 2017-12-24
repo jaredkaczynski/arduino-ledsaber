@@ -1,4 +1,6 @@
 //#define FASTLED_FORCE_SOFTWARE_SPI 1
+#define FASTLED_ESP8266_DMA
+#define FASTLED_ALLOW_INTERRUPTS 0
 
 #include <OneButton.h>
 #include <EEPROM.h>
@@ -53,9 +55,6 @@ Blade blade_array[blade_count];
 //Switching over to a 2 button setup instead of the rotary encoder for 1, simplicity, 2 appearance
 OneButton button1(D2, true);
 OneButton button2(D3, true);
-
-
-
 
 //Blade Effect Enable/disable
 //Independent
@@ -142,18 +141,18 @@ double count_up = 0;
 
 void init_leds() {
 	// setup the blade strips
-	blade_array[0].blade_led_count = 66;
+	blade_array[0].blade_led_count = 144;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
 	//Technically unneeded
 	blade_array[0].blade_red = 0;
 	blade_array[0].blade_green = 205;
 	blade_array[0].blade_blue = 255;
-	blade_array[0].pin = D5;
+	blade_array[0].pin = RX;
 	blade_array[0].myPal = heatmap_luke;
 
 	//	LEDS.addLeds<WS2812, blade_array[0].pin, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
-	LEDS.addLeds<WS2812, D5, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
+	LEDS.addLeds<WS2812, RX, GRB>(blade_array[0].blade_leds, blade_array[0].blade_led_count);
 
 #ifdef STATUS_LEDS
 	// setup the status strip
@@ -191,10 +190,11 @@ void setup() {
 
 
 	// start sound system
-	//snd_init();
+	snd_init();
 #ifdef DEBUG
 	Serial.println("Running");
-	//ignite();
+	ignite();
+	Serial.println("Igniting");
 #endif
 }
 
@@ -451,10 +451,9 @@ void loop() {
 	}
 	// update the LEDS now
 	if ((ctrl_counter & 1) == 0) { //Run this code on the off cycle of the MPU6050 to keep consistent loop times
-		LEDS.show();
+	LEDS.show();
 	}
 	time = micros() - time;
 
-	Serial.println(time, DEC);
-	Serial.println(ctrl_counter & 1);
+	//Serial.println(time, DEC);
 	}
