@@ -14,6 +14,8 @@ byte snd_buzz_volume = 0;
 byte snd_hum1_volume = 0;
 byte snd_hum2_volume = 0;
 
+volatile unsigned long next;
+
 /*
 int snd_tap1_delay1 = 32; int snd_tap1_delay2 = snd_tap1_delay1/2;
 int snd_tap2_delay1 = 40; int snd_tap2_delay2 = snd_tap1_delay2/2;
@@ -112,6 +114,51 @@ inline int sound_ring_sample(int ago) {
 int snd_index_1 = 0;
 int snd_index_2 = 0;
 int snd_index_3 = 0;
+
+void interrupt_routine() {
+	//digitalWrite(8,HIGH);
+	// combine the wave and global volume into channel volumes
+	unsigned int v1 = snd_buzz_volume; //v1 *= global_volume; v1 = v1 >> 8;
+	unsigned int v2 = snd_hum1_volume; //v2 *= global_volume; v2 = v2 >> 8;
+	unsigned int v3 = snd_hum2_volume; //v3 *= global_volume; v3 = v3 >> 8;
+									   // sample our primary waveforms, and multiply by their master volumes
+	int s1 = (sound_sample(&snd_index_1, buzz_wave, snd_buzz_speed, BUZZ_WAVE_LENGTH) - 128) * v1;
+	int s2 = (sound_sample(&snd_index_2, hum1_wave, snd_hum1_speed, HUM1_WAVE_LENGTH) - 128) * v2;
+	int s3 = (sound_sample(&snd_index_3, hum2_wave, snd_hum2_speed, HUM2_WAVE_LENGTH) - 128) * v3;
+	// combine the samples together
+	//long n = 0; n += s1; n += s2; n += s3;
+	// clip
+	/*
+	unsigned int sample;
+	if(n >= 0x8000) {
+	sample = 0xFFFF;
+	} else if(n <= -0x8000) {
+	sample = 0x0000;
+	} else {
+	sample = 0x8000 + n;
+	}
+	*/
+	unsigned int sample = 0x8000 + s1 + s2 + s3;
+
+
+	// update the PWM value with the top few bits
+	analogWriteFreq((sample >> 9) & 0x7f);
+//#ifdef AUDIO_PWM9
+//	OCR4B = (sample >> 7) & 0x1ff;
+//#endif
+//#ifdef AUDIO_PWM8
+//	OCR4B = (sample >> 8) & 0xff;
+//#endif
+//#ifdef AUDIO_PWM7
+//	OCR4B = (sample >> 9) & 0x7f;
+//#endif
+//#ifdef AUDIO_PWM6
+//	OCR4B = (sample >> 10) & 0x3f;
+//#endif
+//#ifdef AUDIO_PWM4
+//	OCR4B = (sample >> 12) & 0x0f;
+//#endif
+}
 #ifndef DEBUG
 ISR(TIMER1_COMPA_vect) {
   //digitalWrite(8,HIGH);
@@ -155,23 +202,27 @@ ISR(TIMER1_COMPA_vect) {
 #ifdef AUDIO_PWM4
   OCR4B = (sample >> 12) & 0x0f;
 #endif
-
-  /*
-  // store the sample in the ring
-  sound_ring[sound_ring_index] = sample >> 8;
-  sound_ring_index = (sound_ring_index + 1) & 0x03FF;
-  */
-  // done
-  //digitalWrite(8,LOW);
 }
 #endif // !DEBUG
 
-#ifndef DEBUG
 
-void enable_intr(){
-}
 
 void snd_init() {
+	noInterrupts();
+	timer0_isr_init();
+	timer0_attachInterrupt(interrupt_routine);
+	//80000000/x=8000 x=10000 for 8000 interrupts per second
+	next = (ESP.getCycleCount() + 10000);
+	timer0_write(next);
+	//timer1_isr_init();
+	//timer1_attachInterrupt(servoISR);
+	//next = ESP.getCycleCount() + 1000;
+	//timer1_write(next);
+	interrupts();
+
+}
+#ifndef DEBUG
+void snd_init_avr() {
   //pinMode(8, OUTPUT);
   //digitalWrite(8,LOW);
   pinMode(10, OUTPUT);
