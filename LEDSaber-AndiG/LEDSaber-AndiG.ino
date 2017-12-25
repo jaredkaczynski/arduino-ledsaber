@@ -293,14 +293,14 @@ void loop() {
 #endif
 
 
-//#ifdef DEBUG
-//	rotation_history = count_up;
-//	velocity_factor = (count_up / 100.0);
-//	count_up+=.1;
-//	if (count_up > 100) {
-//		count_up = 0;
-//	}
-//#endif
+#ifdef DEBUG
+	rotation_history = count_up;
+	velocity_factor = (count_up / 100.0);
+	count_up+=1;
+	if (count_up > 100) {
+		count_up = 0;
+	}
+#endif
 
 #ifdef CONTROL_ROTARY
 	// check the controls
