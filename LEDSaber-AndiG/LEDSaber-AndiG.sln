@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26228.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LEDSaber-AndiG", "LEDSaber-AndiG.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blink", "..\..\..\..\Documents\Arduino\hardware\Arduino_STM32-master\STM32F1\libraries\A_STM32_Examples\examples\Digital\Blink\Blink.vcxproj", "{C735B523-9161-4950-9A89-E19E39BA7A76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -15,6 +17,10 @@ Global
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{C735B523-9161-4950-9A89-E19E39BA7A76}.Debug|x86.ActiveCfg = Debug|Win32
+		{C735B523-9161-4950-9A89-E19E39BA7A76}.Debug|x86.Build.0 = Debug|Win32
+		{C735B523-9161-4950-9A89-E19E39BA7A76}.Release|x86.ActiveCfg = Release|Win32
+		{C735B523-9161-4950-9A89-E19E39BA7A76}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

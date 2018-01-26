@@ -172,10 +172,11 @@ void init_leds() {
 }
 
 void setup() {
-	//delay(2000);
-	dist = random16(12345);
 	// start serial port?
 	Serial.begin(9600);
+	Serial.println("Start");
+	//delay(2000);
+	dist = random16(12345);
 	// enable watchdog timer
 	//wdt_enable(WDTO_1S); // no, we cannot do this on a 32u4, it breaks the bootloader upload
 	init_leds();
@@ -194,7 +195,7 @@ void setup() {
 
 
 	// start sound system
-	DMA_Setup();
+	//DMA_Setup();
 	TIMER_Setup();
 
 #ifdef DEBUG

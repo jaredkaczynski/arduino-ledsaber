@@ -20,18 +20,12 @@ byte snd_hum2_volume = 0;
 const uint8_t SPEAKER_PIN = PB6; // tim4 ch1 output
 
 
-
 #define SAMPLING_RATE_HZ 8000 // todo: extract from WAV file
 
 #define timer Timer4
 
-#define TIMER_stop  (timer.pause)
-#define TIMER_start (timer.resume)
-#define DMA_BUF_SIZE 1
-
 // sound fonts
 #define BUZZ_WAVE_LENGTH 205
-
 byte buzz_wave[BUZZ_WAVE_LENGTH] = {
 	0x82, 0x82, 0x75, 0x65, 0x55, 0x4B, 0x5E, 0x74, 0x7C, 0x71, 0x57, 0x58,
 	0x89, 0xAE, 0xB3, 0xC8, 0xD4, 0xBD, 0x83, 0x4B, 0x34, 0x42, 0x6D, 0x9F,
@@ -85,9 +79,6 @@ byte hum2_wave[HUM2_WAVE_LENGTH] = {
 	0x8D
 };
 
-unsigned int sample;
-
-#define dmaBuffer sample
 
 
 byte sound_sample(int * index, byte * wave, int wave_speed, byte wave_length) {
@@ -176,53 +167,23 @@ void DMA_isr(void)
 	unsigned int v2 = snd_hum1_volume; //v2 *= global_volume; v2 = v2 >> 8;
 	unsigned int v3 = snd_hum2_volume; //v3 *= global_volume; v3 = v3 >> 8;
 									   // sample our primary waveforms, and multiply by their master volumes
-	int s1 = (sound_sample(&snd_index_1, buzz_wave, snd_buzz_speed, 205) - 128) * v1;
-	int s2 = (sound_sample(&snd_index_2, hum1_wave, snd_hum1_speed, 133) - 128) * v2;
-	int s3 = (sound_sample(&snd_index_3, hum2_wave, snd_hum2_speed, 133) - 128) * v3;
+	int s1 = (sound_sample(&snd_index_1, buzz_wave, snd_buzz_speed, BUZZ_WAVE_LENGTH) - 128) * v1;
+	int s2 = (sound_sample(&snd_index_2, hum1_wave, snd_hum1_speed, HUM1_WAVE_LENGTH) - 128) * v2;
+	int s3 = (sound_sample(&snd_index_3, hum2_wave, snd_hum2_speed, HUM2_WAVE_LENGTH) - 128) * v3;
 	// combine the samples together
-	sample = 0x8000 + s1 + s2 + s3;
+	unsigned int sample = 0x8000 + s1 + s2 + s3;
 	uint32_t dma_isr = dma_get_isr_bits(DMA1, DMA_CH7);
 	//if (dma_isr&DMA_ISR_HTIF1) {
 	//	dma_half_complete = true;
 	//}
-	if (dma_isr&DMA_ISR_TCIF1) {
-		dma_full_complete = true;
-		// here we could stop the timer
-	}
-	dma_clear_isr_bits(DMA1, DMA_CH7);
+	Serial.println("Running");
+
+	pwmWrite(SPEAKER_PIN, (sample >> 8) & 0xff);
 }
 #else
 #define dma_full_complete (DMA1->regs->CNDTR7==0)
 #endif
 
-void enable_intr() {
-}
-
-void DMA_Setup() {
-	dma_init(DMA1);
-	dma_disable(DMA1, DMA_CH7);
-	uint32_t flags = (DMA_FROM_MEM | DMA_MINC_MODE); // | DMA_CIRC_MODE));
-#ifdef USE_DMA_IRQ
-	flags |= DMA_TRNS_CMPLT;
-	dma_attach_interrupt(DMA1, DMA_CH7, DMA_isr);
-#endif
-	dma_setup_transfer(DMA1, DMA_CH7,
-		&((TIMER4->regs).gen->CCR1), DMA_SIZE_16BITS, // peripheral
-		(uint8_t *)dmaBuffer, DMA_SIZE_8BITS, // memory
-		flags);
-	dma_set_priority(DMA1, DMA_CH7, DMA_PRIORITY_HIGH);
-}
-
-//-----------------------------------------------------------------------------
-void DMA_start()
-{
-#ifdef USE_DMA_IRQ
-	dma_full_complete = false;
-#endif
-	dma_disable(DMA1, DMA_CH7);
-	dma_set_num_transfers(DMA1, DMA_CH7, DMA_BUF_SIZE);
-	dma_enable(DMA1, DMA_CH7);
-}
 //-----------------------------------------------------------------------------
 // Set TIM4_UPDATE event to trigger DMA1 channel 7
 //-----------------------------------------------------------------------------
@@ -240,7 +201,8 @@ void TIMER_Setup()
 	//	Serial.print("prescaler: "); Serial.println(timer.getPrescaleFactor());
 	//	Serial.print("reload register: "); Serial.println(timer.getOverflow());
 	//	Serial.print("sampling rate: "); Serial.println((uint32_t)(F_CPU/timer.getPrescaleFactor()/timer.getOverflow()));
-	timer.enableDMA(0); // for udate event use channel 0
+	timer.attachCompare1Interrupt(DMA_isr);
+	timer.resume();
 }
 
 //void snd_init() {
