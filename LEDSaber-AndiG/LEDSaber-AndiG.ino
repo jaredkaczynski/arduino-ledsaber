@@ -1,10 +1,11 @@
 //#define FASTLED_FORCE_SOFTWARE_SPI 1
 
+#include <FastLED.h>
+
 #include <OneButton.h>
-#include <EEPROMex.h>
+#include <EEPROM.h>
 #include <Wire.h>
 //#include <avr/wdt.h>
-#include <FastLED.h>
 
 // local extentions
 #include "properties.h"
@@ -53,15 +54,15 @@ Blade blade_array[blade_count];
 #define CONTROL_BUTTON
 
 //Switching over to a 2 button setup instead of the rotary encoder for 1, simplicity, 2 appearance
-OneButton button1(A2, true);
-OneButton button2(A3, true);
+OneButton button1(D2, true);
+OneButton button2(D3, true);
 
 
 
 
 //Blade Effect Enable/disable
 //Independent
-//#define BLADE_BRIGHTNESS_SWING_MODULATION
+#define BLADE_BRIGHTNESS_SWING_MODULATION
 //Either BLADE_FIRE for fire effect or BLADE_NOISE For noise effect
 #define BLADE_NOISE
 //#define BLADE_FIRE
@@ -144,7 +145,7 @@ double count_up = 0;
 
 void init_leds() {
 	// setup the blade strips
-	blade_array[0].blade_led_count = 66;
+	blade_array[0].blade_led_count = 30;
 	//Allocate the array of LEDs, shouldn't need to release as this only runs once
 	blade_array[0].blade_leds = (CRGB*)malloc(blade_array[0].blade_led_count * sizeof(CRGB));
 	//Technically unneeded
@@ -193,11 +194,13 @@ void setup() {
 
 
 	// start sound system
-	//snd_init();
+	DMA_Setup();
+	TIMER_Setup();
+
 #ifdef DEBUG
 	Serial.println("Running");
-	//ignite();
 #endif
+	ignite();
 }
 
 void loop() {
